@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ReelD — Turn Voice-overs into Vertical Reels Automatically</title>
+<meta name="description" content="ReelD converts your voice-over recordings into polished vertical reels. Upload audio, auto-transcribe with Whisper, apply a reusable preset, and export H.264 video — in minutes. Open-source. 100 free credits on signup."/>
+<meta name="keywords" content="voice over to reel, voice to video, auto transcribe reel, vertical video automation, reel maker, open source reel generator, voiceover video tool, whisper transcription video, short video automation"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="/"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="ReelD — Turn Voice-overs into Vertical Reels Automatically"/>
+<meta property="og:description" content="Upload a voice-over, auto-transcribe it into timed segments, apply a reusable preset (background, captions, BGM, frame), and export a production-ready vertical reel. Open-source. 100 free credits."/>
+<meta property="og:url" content="/"/>
+<meta property="og:site_name" content="ReelD"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="ReelD — Voice-over to Reel Platform"/>
+<meta name="twitter:description" content="Build a preset once. Upload any voice-over. Get a finished vertical reel in minutes. Open-source & affordable."/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ReelD",
+  "applicationCategory": "VideoApplication",
+  "operatingSystem": "Web",
+  "description": "ReelD is an open-source voice-over to reel platform. Upload audio, auto-transcribe with Whisper, apply reusable presets, and export polished vertical videos automatically.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0.5",
+    "priceCurrency": "INR",
+    "description": "0.5 INR per credit. 1 credit = 1 second of exported reel. 100 free credits on signup."
+  },
+  "featureList": [
+    "Voice-over transcription with Whisper",
+    "Reusable preset system for visual branding",
+    "Automatic silence removal",
+    "Per-segment visual overlays with crop and fit modes",
+    "FFmpeg rendering pipeline",
+    "H.264 vertical video export"
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0c0e;--surface:#141416;--surface2:#1c1c1f;
+  --border:#2a2a2f;--border2:#333338;
+  --text:#f0f0f2;--muted:#6b6b75;--muted2:#4a4a52;
+  --accent:#ff6b35;--accent2:#ff8c5a;
+  --accent-dim:rgba(255,107,53,0.12);--accent-glow:rgba(255,107,53,0.25);
+  --green:#2dd4a0;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden}
+
+/* ── Grid background ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;
+  background-image:
+    linear-gradient(rgba(255,107,53,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,107,53,0.03) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;
+}
+
+/* ── Glow orb ── */
+.glow-orb{
+  position:fixed;top:-20%;left:50%;transform:translateX(-50%);
+  width:800px;height:500px;border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(255,107,53,0.08) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Layout ── */
+.container{max-width:1080px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
+
+/* ── Nav ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  border-bottom:1px solid rgba(42,42,47,0.6);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  background:rgba(12,12,14,0.8);
+}
+.nav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  height:60px;max-width:1080px;margin:0 auto;padding:0 32px;
+}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-0.5px;text-decoration:none;color:var(--text)}
+.logo span{color:var(--accent)}
+.logo-tag{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);display:block;margin-top:-2px}
+.nav-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 18px;background:#fff;color:#3c4043;
+  border-radius:8px;font-size:13px;font-weight:600;
+  text-decoration:none;border:1.5px solid #dadce0;
+  transition:box-shadow .15s,transform .15s;
+}
+.nav-cta:hover{box-shadow:0 4px 16px rgba(0,0,0,0.3);transform:translateY(-1px)}
+
+/* ── Hero ── */
+.hero{
+  padding:110px 0 80px;text-align:center;
+  position:relative;z-index:1;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:20px;
+  background:var(--accent-dim);border:1px solid var(--accent-glow);
+  font-size:11px;font-family:'DM Mono',monospace;
+  color:var(--accent);letter-spacing:0.5px;text-transform:uppercase;
+  margin-bottom:28px;
+}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+h1{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(40px,6vw,72px);letter-spacing:-2px;line-height:1.05;
+  margin-bottom:22px;
+}
+h1 .accent{color:var(--accent);position:relative}
+h1 .accent::after{
+  content:'';position:absolute;bottom:-4px;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius:2px;
+}
+.hero-sub{
+  font-size:18px;color:var(--muted);max-width:560px;margin:0 auto 42px;
+  font-weight:300;line-height:1.7;
+}
+.hero-cta-group{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.btn-google{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:14px 28px;background:#fff;color:#3c4043;
+  border-radius:10px;font-size:15px;font-weight:600;
+  text-decoration:none;border:2px solid #dadce0;
+  transition:box-shadow .2s,transform .2s;
+}
+.btn-google:hover{box-shadow:0 8px 32px rgba(0,0,0,0.35);transform:translateY(-2px)}
+.btn-ghost-lg{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 24px;background:transparent;color:var(--muted);
+  border-radius:10px;font-size:15px;font-weight:500;
+  text-decoration:none;border:1.5px solid var(--border2);
+  transition:all .15s;
+}
+.btn-ghost-lg:hover{color:var(--text);border-color:var(--border2);background:var(--surface2)}
+
+/* ── Phone mockup strip ── */
+.mockup-strip{
+  position:relative;z-index:1;
+  display:flex;justify-content:center;gap:20px;
+  padding:0 32px 90px;overflow:hidden;
+}
+.phone{
+  width:120px;flex-shrink:0;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,0.5);
+  transition:transform .3s;
+}
+.phone:nth-child(1){transform:translateY(30px) rotate(-4deg)}
+.phone:nth-child(2){transform:translateY(0px) rotate(-1deg);border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 24px 64px rgba(0,0,0,0.5)}
+.phone:nth-child(3){transform:translateY(22px) rotate(3deg)}
+.phone:nth-child(4){transform:translateY(40px) rotate(-2deg)}
+.phone:nth-child(5){transform:translateY(12px) rotate(2deg)}
+.phone-screen{aspect-ratio:9/16;background:var(--surface2);position:relative;overflow:hidden}
+.phone-line{height:8px;border-radius:4px;background:var(--surface3, #242428);margin:0 10px 6px}
+.phone-line:first-child{margin-top:12px}
+.phone-vis{height:50px;border-radius:6px;background:var(--border2);margin:0 10px 8px}
+.phone-caption{padding:0 10px 10px}
+.phone-caption .w{height:6px;border-radius:3px;background:var(--border2);margin-bottom:5px}
+
+/* ── Section titles ── */
+.section-label{
+  font-family:'DM Mono',monospace;font-size:10px;
+  text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+  margin-bottom:12px;
+}
+.section-heading{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:clamp(28px,4vw,40px);letter-spacing:-1px;margin:0 0 16px 0;padding:0;
+}
+.section-sub{font-size:16px;color:var(--muted);max-width:520px;line-height:1.7;font-weight:300;margin:0;padding:0}
+
+/* ── Two-phase workflow ── */
+.how{padding:90px 0;position:relative;z-index:1}
+.how .container{text-align:center}
+.phases{margin-top:60px;display:flex;flex-direction:column;gap:0}
+
+.phase-block{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:36px 40px;text-align:left;
+}
+.phase-one{border-color:var(--accent-glow);box-shadow:0 0 0 1px rgba(255,107,53,0.08)}
+.phase-two{border-color:rgba(45,212,160,0.2);box-shadow:0 0 0 1px rgba(45,212,160,0.04)}
+.phase-header{margin-bottom:28px}
+.phase-pill{
+  display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;
+  font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;
+  background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-glow);
+  margin-bottom:10px;
+}
+.phase-pill-green{background:rgba(45,212,160,0.1);color:var(--green);border-color:rgba(45,212,160,0.25)}
+.phase-title{font-family:'Syne',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.5px;margin:0 0 6px 0;padding:0}
+.phase-sub{font-size:14px;color:var(--muted);max-width:560px;line-height:1.65;margin:0;padding:0}
+
+/* Phase 1 steps */
+.phase-steps{display:flex;flex-direction:column;gap:0;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.pstep{
+  display:flex;align-items:flex-start;gap:14px;padding:16px 20px;
+  background:var(--surface2);border-bottom:1px solid var(--border);
+  transition:background .15s;
+}
+.pstep:last-child{border-bottom:none}
+.pstep:hover{background:var(--surface3,#242428)}
+.pstep-save{background:rgba(255,107,53,0.04)}
+.pstep-icon{
+  width:34px;height:34px;flex-shrink:0;border-radius:8px;
+  background:var(--surface);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+}
+.pstep-icon svg{width:16px;height:16px}
+.pstep-title{font-size:13px;font-weight:600;margin:0 0 2px 0;padding:0}
+.pstep-desc{font-size:12px;color:var(--muted);line-height:1.55;margin:0;padding:0}
+
+/* Phase divider */
+.phase-divider{
+  display:flex;align-items:center;gap:16px;
+  padding:28px 0;
+}
+.phase-divider-line{flex:1;height:1px;background:var(--border)}
+.phase-divider-label{
+  font-size:11px;color:var(--muted2);font-family:'DM Mono',monospace;
+  text-transform:uppercase;letter-spacing:1px;white-space:nowrap;
+}
+
+/* Phase 2 loop steps */
+.loop-steps{
+  display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px;
+  margin-bottom:20px;
+}
+.lstep{
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;display:flex;align-items:flex-start;gap:10px;flex:1;min-width:130px;
+}
+.lstep-done{border-color:rgba(45,212,160,0.25);background:rgba(45,212,160,0.04)}
+.lstep-num{
+  width:24px;height:24px;border-radius:6px;flex-shrink:0;
+  background:var(--accent-dim);color:var(--accent);
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+}
+.lstep-title{font-size:12px;font-weight:600;margin:0 0 2px 0;padding:0}
+.lstep-desc{font-size:11px;color:var(--muted);line-height:1.5;margin:0;padding:0}
+.lstep-arrow{
+  color:var(--muted2);font-size:16px;padding-top:12px;flex-shrink:0;
+  align-self:flex-start;
+}
+.repeat-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 14px;border-radius:8px;
+  background:rgba(45,212,160,0.06);border:1px solid rgba(45,212,160,0.15);
+  font-size:12px;color:var(--green);font-family:'DM Mono',monospace;
+}
+
+/* ── Features ── */
+.features{padding:80px 0;position:relative;z-index:1;border-top:1px solid var(--border)}
+.features-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:1px;background:var(--border);border-radius:16px;overflow:hidden;margin-top:52px;
+}
+.feat{background:var(--surface);padding:28px 24px;transition:background .2s}
+.feat:hover{background:var(--surface2)}
+.feat-icon{
+  width:40px;height:40px;border-radius:10px;margin-bottom:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+}
+.feat-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin:0 0 8px 0;padding:0}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.65;margin:0;padding:0}
+
+/* ── Hero perks ── */
+.hero-perks{
+  display:flex;align-items:center;justify-content:center;
+  gap:20px;flex-wrap:wrap;margin-top:20px;
+}
+.hero-perks span{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;
+}
+
+/* ── Pricing ── */
+.pricing{padding:90px 0;position:relative;z-index:1;border-top:1px solid var(--border)}
+.pricing .container{text-align:center}
+.pricing-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  margin-top:52px;text-align:left;
+}
+@media(max-width:680px){.pricing-grid{grid-template-columns:1fr}}
+.price-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:16px;padding:32px 28px;
+}
+.price-card-main{border-color:var(--accent-glow);box-shadow:0 0 0 1px rgba(255,107,53,0.06)}
+.price-card-oss{border-color:rgba(77,158,255,0.2)}
+.price-card-header{margin-bottom:20px}
+.price-label{font-size:11px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px}
+.price-amount{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:40px;
+  letter-spacing:-2px;line-height:1;margin-bottom:8px;
+  display:flex;align-items:baseline;gap:8px;
+}
+.price-strike{color:var(--muted2);text-decoration:line-through;font-size:24px}
+.price-current{color:var(--accent)}
+.price-unit{font-size:16px;font-weight:400;color:var(--muted);letter-spacing:0}
+.price-badge{
+  display:inline-block;padding:3px 10px;border-radius:20px;
+  background:var(--accent-dim);border:1px solid var(--accent-glow);
+  font-size:10px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:0.5px;
+}
+.price-rule{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 14px;border-radius:8px;
+  background:var(--surface2);border:1px solid var(--border);
+  font-size:13px;margin-bottom:20px;
+}
+.price-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.price-list li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--muted)}
+.price-list li svg{flex-shrink:0;margin-top:2px}
+.price-example{
+  font-size:12px;color:var(--muted2);font-family:'DM Mono',monospace;
+  padding:10px 14px;background:var(--surface2);border-radius:8px;
+  border:1px solid var(--border);
+}
+.price-example strong{color:var(--text)}
+
+/* ── CTA banner ── */
+.cta-banner{
+  padding:80px 0;position:relative;z-index:1;
+}
+.cta-inner{
+  background:linear-gradient(135deg,var(--surface) 0%,rgba(255,107,53,0.06) 100%);
+  border:1px solid var(--accent-glow);border-radius:20px;
+  padding:60px 48px;text-align:center;position:relative;overflow:hidden;
+}
+.cta-inner::before{
+  content:'';position:absolute;top:-60%;right:-10%;
+  width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(255,107,53,0.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+.cta-inner h2{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(28px,4vw,44px);letter-spacing:-1.5px;margin-bottom:14px;
+}
+.cta-inner p{font-size:16px;color:var(--muted);margin-bottom:36px;font-weight:300}
+
+/* ── Footer ── */
+footer{
+  border-top:1px solid var(--border);padding:32px 0;
+  position:relative;z-index:1;
+}
+.footer-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;
+  max-width:1080px;margin:0 auto;padding:0 32px;
+}
+.footer-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--muted2)}
+.footer-logo span{color:var(--accent)}
+.footer-links{display:flex;align-items:center;gap:20px}
+.footer-links a{
+  font-size:13px;color:var(--muted);text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;transition:color .15s;
+}
+.footer-links a:hover{color:var(--text)}
+.btn-contribute{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;
+  text-decoration:none;color:var(--text);
+  background:var(--surface2);border:1.5px solid var(--border2);
+  transition:all .15s;
+}
+.btn-contribute:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.footer-copy{font-size:11px;color:var(--muted2);font-family:'DM Mono',monospace}
+</style>
+</head>
+<body>
+
+<div class="glow-orb"></div>
+
+<!-- ── Nav ─────────────────────────────────────────────────── -->
+<nav aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="/" class="logo" aria-label="ReelD — Voice-over to Reel Platform">
+      Reel<span>D</span>
+      <span class="logo-tag">Voice-over to Reel</span>
+    </a>
+    <a href="/auth/google" class="nav-cta" aria-label="Sign in with Google to start making reels">
+      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </a>
+  </div>
+</nav>
+
+<main>
+<!-- ── Hero ─────────────────────────────────────────────────── -->
+<section class="hero" aria-labelledby="hero-heading">
+  <div class="container">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Open-source · Voice-over to Reel
+    </div>
+    <h1 id="hero-heading">
+      Voice-over in.<br/>
+      <span class="accent">Reel out.</span>
+    </h1>
+    <p class="hero-sub">
+      Record your voice. ReelD transcribes it into timed segments, applies your
+      <strong style="color:var(--text);font-weight:600">saved preset</strong> — background, captions, frame, BGM —
+      and renders a polished vertical reel. Build the preset once, repeat for every recording.
+    </p>
+    <div class="hero-cta-group">
+      <a href="/auth/google" class="btn-google">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </a>
+    </div>
+    <div class="hero-perks">
+      <span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        100 free credits on signup
+      </span>
+      <span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Unlimited presets
+      </span>
+      <span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        No credit card required
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ── Phone mockups ─────────────────────────────────────────── -->
+<div class="mockup-strip">
+  <!-- card 1: text only -->
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="phone-line" style="width:75%"></div>
+      <div class="phone-line" style="width:55%"></div>
+      <div class="phone-line" style="width:65%"></div>
+      <div style="height:70px;background:#1c1c1f;margin:6px 10px 8px;border-radius:8px"></div>
+      <div class="phone-line" style="width:80%"></div>
+      <div class="phone-line" style="width:40%;background:rgba(255,107,53,0.5)"></div>
+    </div>
+  </div>
+  <!-- card 2: highlighted (featured) -->
+  <div class="phone">
+    <div class="phone-screen" style="background:#141416">
+      <div style="height:90px;background:linear-gradient(135deg,#1c1c1f,#242428);margin:12px 10px 8px;border-radius:10px;border:1px solid #2a2a2f"></div>
+      <div class="phone-line" style="width:85%;height:9px;background:rgba(255,107,53,0.7)"></div>
+      <div class="phone-line" style="width:60%;height:6px"></div>
+      <div class="phone-line" style="width:70%;height:6px"></div>
+    </div>
+  </div>
+  <!-- card 3 -->
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="phone-line" style="width:60%"></div>
+      <div style="height:80px;background:#242428;margin:0 10px 8px;border-radius:8px"></div>
+      <div class="phone-line" style="width:90%"></div>
+      <div class="phone-line" style="width:50%"></div>
+      <div class="phone-line" style="width:75%;background:rgba(45,212,160,0.4)"></div>
+    </div>
+  </div>
+  <!-- card 4 -->
+  <div class="phone">
+    <div class="phone-screen">
+      <div style="height:60px;background:#1c1c1f;margin:12px 10px 10px;border-radius:8px"></div>
+      <div class="phone-line" style="width:80%"></div>
+      <div class="phone-line" style="width:55%"></div>
+      <div class="phone-line" style="width:65%;background:rgba(255,107,53,0.4)"></div>
+    </div>
+  </div>
+  <!-- card 5 -->
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="phone-line" style="width:70%;margin-top:14px"></div>
+      <div class="phone-line" style="width:45%"></div>
+      <div style="height:75px;background:#242428;margin:6px 10px 8px;border-radius:8px"></div>
+      <div class="phone-line" style="width:85%"></div>
+      <div class="phone-line" style="width:55%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Two-phase workflow ─────────────────────────────────────── -->
+<section class="how" aria-labelledby="how-heading">
+  <div class="container">
+    <p class="section-label">How it works</p>
+    <h2 class="section-heading" id="how-heading">Two phases. Unlimited reels.</h2>
+    <p class="section-sub" style="margin:0 auto">The first phase is a one-time setup. Every reel after that follows the same fast loop — no redesigning, no re-configuring.</p>
+
+    <div class="phases">
+
+      <!-- Phase 1 -->
+      <div class="phase-block phase-one">
+        <div class="phase-header">
+          <p class="phase-pill">Phase 1 — Once</p>
+          <h3 class="phase-title">Build your Reel Preset</h3>
+          <p class="phase-sub">Spend ~15 minutes locking in your visual brand. Every voice-over you make after this inherits it automatically.</p>
+        </div>
+        <div class="phase-steps">
+          <div class="pstep">
+            <div class="pstep-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><path d="M21 15l-5-5L5 21"/></svg>
+            </div>
+            <div>
+              <h4 class="pstep-title">Pick a background</h4>
+              <p class="pstep-desc">Solid color, looping video, or image. Defines the canvas every segment renders on.</p>
+            </div>
+          </div>
+          <div class="pstep">
+            <div class="pstep-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+            </div>
+            <div>
+              <h4 class="pstep-title">Style your captions</h4>
+              <p class="pstep-desc">Font size, color, highlight mode (pill, underline, text). Typewriter, word-by-word, or fade animation.</p>
+            </div>
+          </div>
+          <div class="pstep">
+            <div class="pstep-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </div>
+            <div>
+              <h4 class="pstep-title">Position the visual container</h4>
+              <p class="pstep-desc">Drag to define where per-segment visuals appear. Add a frame overlay that sits behind the visual.</p>
+            </div>
+          </div>
+          <div class="pstep">
+            <div class="pstep-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </div>
+            <div>
+              <h4 class="pstep-title">Add BGM & transitions</h4>
+              <p class="pstep-desc">Upload a background music track with volume and fade-out control. Set a transition style between segments.</p>
+            </div>
+          </div>
+          <div class="pstep pstep-save">
+            <div class="pstep-icon" style="background:var(--accent-dim);border-color:var(--accent-glow)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            </div>
+            <div>
+              <h4 class="pstep-title" style="color:var(--accent)">Save preset — you're done with phase 1</h4>
+              <p class="pstep-desc">Share it with teammates via a link. All your future reels use this preset automatically.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-divider">
+        <div class="phase-divider-line"></div>
+        <div class="phase-divider-label">then, for every new recording</div>
+        <div class="phase-divider-line"></div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="phase-block phase-two">
+        <div class="phase-header">
+          <p class="phase-pill phase-pill-green">Phase 2 — Every reel</p>
+          <h3 class="phase-title">Upload Voice-over → Export Reel</h3>
+          <p class="phase-sub">The preset does the heavy lifting. You just bring the voice-over and any per-segment visuals.</p>
+        </div>
+        <div class="loop-steps">
+          <div class="lstep">
+            <div class="lstep-num">1</div>
+            <div class="lstep-body">
+              <h4 class="lstep-title">Upload voice-over</h4>
+              <p class="lstep-desc">MP3, M4A, WAV — any spoken recording.</p>
+            </div>
+          </div>
+          <div class="lstep-arrow">→</div>
+          <div class="lstep">
+            <div class="lstep-num">2</div>
+            <div class="lstep-body">
+              <h4 class="lstep-title">Strip silences</h4>
+              <p class="lstep-desc">One click removes dead air automatically.</p>
+            </div>
+          </div>
+          <div class="lstep-arrow">→</div>
+          <div class="lstep">
+            <div class="lstep-num">3</div>
+            <div class="lstep-body">
+              <h4 class="lstep-title">Auto-transcribe</h4>
+              <p class="lstep-desc">Whisper breaks it into timed caption segments.</p>
+            </div>
+          </div>
+          <div class="lstep-arrow">→</div>
+          <div class="lstep">
+            <div class="lstep-num">4</div>
+            <div class="lstep-body">
+              <h4 class="lstep-title">Drop visuals, tweak captions</h4>
+              <p class="lstep-desc">Per-segment images or clips, edit any word inline.</p>
+            </div>
+          </div>
+          <div class="lstep-arrow">→</div>
+          <div class="lstep lstep-done">
+            <div class="lstep-num" style="background:var(--green);color:#000">✓</div>
+            <div class="lstep-body">
+              <h4 class="lstep-title" style="color:var(--green)">Export reel</h4>
+              <p class="lstep-desc">H.264 vertical video, ready to post.</p>
+            </div>
+          </div>
+        </div>
+        <div class="repeat-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          Repeat this loop for every new recording — preset stays the same
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ─────────────────────────────────────────────── -->
+<section class="features" aria-labelledby="features-heading">
+  <div class="container">
+    <p class="section-label">Built for volume</p>
+    <h2 class="section-heading" id="features-heading">What makes ReelD presets powerful</h2>
+
+    <div class="features-grid">
+
+      <div class="feat">
+        <div class="feat-icon" style="background:rgba(255,107,53,0.1)">🎨</div>
+        <h3 class="feat-title">One preset, infinite reels</h3>
+        <p class="feat-desc">Background, caption style, frame overlay, BGM, and layout — locked in once. Every reel you generate inherits your brand without any extra work.</p>
+      </div>
+
+      <div class="feat">
+        <div class="feat-icon" style="background:rgba(77,158,255,0.1)">🔗</div>
+        <h3 class="feat-title">Share presets with a link</h3>
+        <p class="feat-desc">Export a preset as a shareable token. Teammates import it instantly. Everyone generates on-brand reels from day one.</p>
+      </div>
+
+      <div class="feat">
+        <div class="feat-icon" style="background:rgba(45,212,160,0.1)">🎙️</div>
+        <h3 class="feat-title">Whisper transcription</h3>
+        <p class="feat-desc">Local Whisper model turns your audio into timed segments with captions. No external API costs, no data leaving your machine.</p>
+      </div>
+
+      <div class="feat">
+        <div class="feat-icon" style="background:rgba(180,100,255,0.1)">✏️</div>
+        <h3 class="feat-title">Inline caption editing</h3>
+        <p class="feat-desc">Click any caption or timestamp to edit live. Wrap words in *asterisks* to highlight them. Drag to reorder. Undo/redo everything.</p>
+      </div>
+
+      <div class="feat">
+        <div class="feat-icon" style="background:rgba(255,107,53,0.1)">🔇</div>
+        <h3 class="feat-title">Silence removal</h3>
+        <p class="feat-desc">Configurable silence stripper removes dead air before transcription so your segments are always tight and watchable.</p>
+      </div>
+
+      <div class="feat">
+        <div class="feat-icon" style="background:rgba(45,212,160,0.1)">⚡</div>
+        <h3 class="feat-title">FFmpeg rendering pipeline</h3>
+        <p class="feat-desc">Segment-by-segment compositing with frame overlays, visual layers, animations, BGM mix, and crisp H.264 output — streamed live as it renders.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Pricing ─────────────────────────────────────────────── -->
+<section class="pricing" aria-labelledby="pricing-heading">
+  <div class="container">
+    <p class="section-label">Pricing</p>
+    <h2 class="section-heading" id="pricing-heading">Pay per second of reel. Presets always free.</h2>
+    <p class="section-sub" style="margin:0 auto">You pay only for the reel you render. Presets, drafts, and edits are always unlimited and free.</p>
+
+    <div class="pricing-grid">
+
+      <!-- Credit model -->
+      <div class="price-card price-card-main">
+        <div class="price-card-header">
+          <div class="price-label">Pay as you go</div>
+          <div class="price-amount">
+            <span class="price-strike">₹1</span>
+            <span class="price-current">₹0.5</span>
+            <span class="price-unit">/ credit</span>
+          </div>
+          <div class="price-badge">Early access discount</div>
+        </div>
+        <div class="price-rule">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <strong>1 credit = 1 second</strong> of exported reel
+        </div>
+        <ul class="price-list">
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            100 free credits on signup — no card needed
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Unlimited presets, always free
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Unlimited reels drafts & edits
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Credits deducted only on export
+          </li>
+        </ul>
+        <div class="price-example">
+          A 60-second reel = 60 credits = <strong>₹30</strong> at current rate
+        </div>
+      </div>
+
+      <!-- Open source -->
+      <div class="price-card price-card-oss">
+        <div class="price-card-header">
+          <div class="price-label">Self-host for free</div>
+          <div class="price-amount" style="font-size:28px;letter-spacing:-1px">Open Source</div>
+        </div>
+        <div class="price-rule" style="border-color:rgba(77,158,255,0.2)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color:var(--blue)"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.57v-2.01c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.005 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          Deploy on your own infrastructure
+        </div>
+        <ul class="price-list">
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Full source code on GitHub
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            No credit system — render as much as your server can handle
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            FastAPI + FFmpeg + Whisper stack
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Contributions welcome
+          </li>
+        </ul>
+        <a href="https://github.com/armedjuror/ReelD" target="_blank" rel="noopener" class="btn-contribute" style="margin-top:20px;width:100%;justify-content:center">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.57v-2.01c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.005 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA banner ────────────────────────────────────────────── -->
+<section class="cta-banner" aria-labelledby="cta-heading">
+  <div class="container">
+    <div class="cta-inner">
+      <h2 id="cta-heading">Start with 100 free credits.</h2>
+      <p>Sign in, build your preset, upload your first voice-over. No card required.</p>
+      <a href="/auth/google" class="btn-google" style="font-size:16px;padding:15px 32px">
+        <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ── Footer ────────────────────────────────────────────────── -->
+<footer aria-label="Site footer">
+  <div class="footer-inner">
+    <div class="footer-logo">Reel<span>D</span></div>
+    <div class="footer-links">
+      <a href="/legal">Privacy &amp; Terms</a>
+      <a href="/auth/google">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In
+      </a>
+      <a href="https://github.com/armedjuror/ReelD" target="_blank" rel="noopener" class="btn-contribute">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.57v-2.01c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.005 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        Contribute on GitHub
+      </a>
+    </div>
+    <div class="footer-copy">© 2025 ReelD</div>
+  </div>
+</footer>
+
+</body>
+</html>

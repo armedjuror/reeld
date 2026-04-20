@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Legal & Policies — ReelD</title>
+<meta name="description" content="ReelD Privacy Policy, Terms & Conditions, and Refund Policy."/>
+<meta name="robots" content="noindex"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0c0e;--surface:#141416;--surface2:#1c1c1f;
+  --border:#2a2a2f;--border2:#333338;
+  --text:#f0f0f2;--muted:#6b6b75;--muted2:#4a4a52;
+  --accent:#ff6b35;--accent2:#ff8c5a;
+  --accent-dim:rgba(255,107,53,0.12);--accent-glow:rgba(255,107,53,0.25);
+  --green:#2dd4a0;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden}
+
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;
+  background-image:
+    linear-gradient(rgba(255,107,53,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,107,53,0.03) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;
+}
+.glow-orb{
+  position:fixed;top:-20%;left:50%;transform:translateX(-50%);
+  width:800px;height:500px;border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(255,107,53,0.08) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+.container{max-width:1080px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
+
+/* ── Nav ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  border-bottom:1px solid rgba(42,42,47,0.6);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  background:rgba(12,12,14,0.8);
+}
+.nav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  height:60px;max-width:1080px;margin:0 auto;padding:0 32px;
+}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-0.5px;text-decoration:none;color:var(--text)}
+.logo span{color:var(--accent)}
+.logo-tag{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);display:block;margin-top:-2px}
+.nav-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 18px;background:#fff;color:#3c4043;
+  border-radius:8px;font-size:13px;font-weight:600;
+  text-decoration:none;border:1.5px solid #dadce0;
+  transition:box-shadow .15s,transform .15s;
+}
+.nav-cta:hover{box-shadow:0 4px 16px rgba(0,0,0,0.3);transform:translateY(-1px)}
+
+/* ── Hero ── */
+.hero{
+  padding:80px 0 60px;
+  position:relative;z-index:1;
+}
+.back-link{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;font-family:'DM Mono',monospace;color:var(--muted);
+  text-decoration:none;text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:28px;transition:color .15s;
+}
+.back-link:hover{color:var(--accent)}
+.back-link svg{transition:transform .15s}
+.back-link:hover svg{transform:translateX(-3px)}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:20px;
+  background:var(--accent-dim);border:1px solid var(--accent-glow);
+  font-size:11px;font-family:'DM Mono',monospace;
+  color:var(--accent);letter-spacing:0.5px;text-transform:uppercase;
+  margin-bottom:20px;
+}
+.hero h1{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(32px,5vw,56px);letter-spacing:-2px;line-height:1.05;
+  margin-bottom:14px;
+}
+.hero-meta{
+  font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;
+}
+
+/* ── Tab nav ── */
+.tab-nav{
+  position:sticky;top:60px;z-index:90;
+  background:rgba(12,12,14,0.85);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.tab-nav-inner{
+  display:flex;align-items:center;gap:0;
+  max-width:1080px;margin:0 auto;padding:0 32px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.tab-nav-inner::-webkit-scrollbar{display:none}
+.tab-link{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:14px 20px;font-size:13px;font-weight:500;color:var(--muted);
+  text-decoration:none;border-bottom:2px solid transparent;
+  white-space:nowrap;transition:color .15s,border-color .15s;
+  margin-bottom:-1px;
+}
+.tab-link:hover{color:var(--text)}
+.tab-link.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-num{
+  width:18px;height:18px;border-radius:5px;
+  background:var(--surface2);color:var(--muted2);
+  font-family:'DM Mono',monospace;font-size:9px;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.tab-link.active .tab-num{background:var(--accent-dim);color:var(--accent)}
+
+/* ── Content ── */
+.legal-content{
+  padding:60px 0 80px;
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;gap:24px;
+}
+
+/* ── Section card ── */
+.legal-section{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;
+  scroll-margin-top:120px;
+}
+.legal-section-header{
+  padding:32px 40px 28px;
+  border-bottom:1px solid var(--border);
+}
+.section-label{
+  font-family:'DM Mono',monospace;font-size:10px;
+  text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+  margin-bottom:10px;
+}
+.section-heading{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:clamp(22px,3vw,30px);letter-spacing:-0.8px;margin:0 0 8px 0;
+}
+.section-updated{
+  font-size:12px;color:var(--muted2);font-family:'DM Mono',monospace;
+}
+
+.legal-body{
+  padding:32px 40px;
+  display:flex;flex-direction:column;gap:28px;
+}
+.legal-block{}
+.legal-block h3{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:15px;
+  letter-spacing:-0.3px;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.legal-block h3::before{
+  content:'';display:inline-block;
+  width:3px;height:14px;border-radius:2px;
+  background:var(--accent);flex-shrink:0;
+}
+.legal-block p{
+  font-size:14px;color:var(--muted);line-height:1.75;
+}
+.legal-block p + p{margin-top:8px}
+.legal-list{
+  list-style:none;display:flex;flex-direction:column;gap:8px;
+  margin-top:10px;
+}
+.legal-list li{
+  display:flex;align-items:flex-start;gap:10px;
+  font-size:14px;color:var(--muted);line-height:1.65;
+}
+.legal-list li::before{
+  content:'';display:inline-block;
+  width:5px;height:5px;border-radius:50%;
+  background:var(--accent);flex-shrink:0;
+  margin-top:8px;
+}
+.legal-highlight{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:16px 18px;border-radius:10px;
+  background:var(--surface2);border:1px solid var(--border2);
+  margin-top:10px;
+}
+.legal-highlight svg{flex-shrink:0;margin-top:2px}
+.legal-highlight p{font-size:13px;color:var(--muted);line-height:1.65;margin:0!important}
+.legal-highlight strong{color:var(--text)}
+.legal-divider{height:1px;background:var(--border);margin:4px 0}
+
+/* ── Privacy specific ── */
+.legal-section.privacy{border-color:rgba(255,107,53,0.15)}
+.legal-section.terms{border-color:rgba(45,212,160,0.12)}
+.legal-section.refund{border-color:rgba(77,158,255,0.12)}
+.legal-section.privacy .section-label{color:var(--accent)}
+.legal-section.terms .section-label{color:var(--green)}
+.legal-section.refund .section-label{color:#4d9eff}
+.legal-section.terms .legal-block h3::before{background:var(--green)}
+.legal-section.refund .legal-block h3::before{background:#4d9eff}
+.legal-section.terms .legal-list li::before{background:var(--green)}
+.legal-section.refund .legal-list li::before{background:#4d9eff}
+.legal-section.terms .tab-num,.legal-section.terms .hero-badge{color:var(--green)}
+
+/* ── Footer ── */
+footer{
+  border-top:1px solid var(--border);padding:32px 0;
+  position:relative;z-index:1;
+}
+.footer-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;
+  max-width:1080px;margin:0 auto;padding:0 32px;
+}
+.footer-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--muted2)}
+.footer-logo span{color:var(--accent)}
+.footer-links{display:flex;align-items:center;gap:20px}
+.footer-links a{
+  font-size:13px;color:var(--muted);text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;transition:color .15s;
+}
+.footer-links a:hover{color:var(--text)}
+.btn-contribute{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;
+  text-decoration:none;color:var(--text);
+  background:var(--surface2);border:1.5px solid var(--border2);
+  transition:all .15s;
+}
+.btn-contribute:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.footer-copy{font-size:11px;color:var(--muted2);font-family:'DM Mono',monospace}
+
+@media(max-width:680px){
+  .legal-section-header,.legal-body{padding:24px 20px}
+  .hero{padding:60px 0 40px}
+  .tab-link{padding:12px 14px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<div class="glow-orb"></div>
+
+<!-- ── Nav ── -->
+<nav aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="/" class="logo" aria-label="ReelD home">
+      Reel<span>D</span>
+      <span class="logo-tag">Voice-over to Reel</span>
+    </a>
+    <a href="/auth/google" class="nav-cta">
+      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </a>
+  </div>
+</nav>
+
+<!-- ── Tab nav ── -->
+<div class="tab-nav" role="navigation" aria-label="Legal sections">
+  <div class="tab-nav-inner">
+    <a href="#privacy" class="tab-link active" data-tab="privacy">
+      <span class="tab-num">1</span>
+      Privacy Policy
+    </a>
+    <a href="#terms" class="tab-link" data-tab="terms">
+      <span class="tab-num">2</span>
+      Terms & Conditions
+    </a>
+    <a href="#refund" class="tab-link" data-tab="refund">
+      <span class="tab-num">3</span>
+      Refund Policy
+    </a>
+  </div>
+</div>
+
+<main>
+<div class="container">
+
+  <!-- ── Hero ── -->
+  <div class="hero">
+    <a href="/" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to ReelD
+    </a>
+    <div class="hero-badge">Legal Documents</div>
+    <h1>Legal &amp; Policies</h1>
+    <p class="hero-meta">Last updated: April 20, 2025 &nbsp;·&nbsp; ReelD by armedjuror</p>
+  </div>
+
+  <!-- ── Legal sections ── -->
+  <div class="legal-content">
+
+    <!-- ── Privacy Policy ── -->
+    <section class="legal-section privacy" id="privacy" aria-labelledby="privacy-heading">
+      <div class="legal-section-header">
+        <p class="section-label">Document 01</p>
+        <h2 class="section-heading" id="privacy-heading">Privacy Policy</h2>
+        <p class="section-updated">Effective: April 20, 2025</p>
+      </div>
+      <div class="legal-body">
+
+        <div class="legal-block">
+          <h3>What We Collect</h3>
+          <p>When you sign in with Google OAuth, we receive your Google profile name, email address, and profile picture URL. We store only what is necessary to create and manage your account.</p>
+          <p>We also collect usage data including your credit balance, credit transactions (purchases and deductions), reel export history (duration, timestamp), and preset configurations you create.</p>
+          <p>When you upload audio or video files for reel generation, these files are temporarily stored on AWS S3 to facilitate rendering. Rendered output files are stored and served to you through the same infrastructure.</p>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>How We Use Your Data</h3>
+          <ul class="legal-list">
+            <li>To authenticate your account and maintain your session securely.</li>
+            <li>To track and deduct credits when you export a reel (1 credit = 1 second of exported video).</li>
+            <li>To render your reel — uploaded audio, visuals, and preset configuration are processed server-side using FFmpeg and Whisper.</li>
+            <li>To process payments and link transactions to your account via Razorpay.</li>
+            <li>To send transactional emails (e.g., purchase receipts) if applicable.</li>
+            <li>To identify and resolve bugs or service issues using anonymised usage logs.</li>
+          </ul>
+          <p style="margin-top:12px">We do not sell, rent, or share your personal data with advertisers or third-party marketers.</p>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>Data Retention</h3>
+          <p>Uploaded source files (audio, images, video clips) and rendered output files are automatically deleted from our S3 storage after <strong style="color:var(--text)">30 days</strong> from the date of upload or last access. You can delete your files manually at any time from within the app.</p>
+          <p>Account data (profile, credit history, presets) is retained for as long as your account is active. If you request account deletion, all associated data is permanently erased within 14 business days.</p>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>Third-Party Services</h3>
+          <ul class="legal-list">
+            <li><strong style="color:var(--text)">Google OAuth</strong> — handles authentication. Your credentials are never stored by ReelD. Google's privacy policy applies to the OAuth flow.</li>
+            <li><strong style="color:var(--text)">AWS S3 (ap-south-1)</strong> — stores uploaded source files and rendered reel outputs. Files are access-controlled and not publicly discoverable.</li>
+            <li><strong style="color:var(--text)">Razorpay</strong> — processes credit purchases. ReelD does not store your card or payment details. Razorpay's PCI-DSS compliance applies.</li>
+            <li><strong style="color:var(--text)">Supabase / PostgreSQL</strong> — stores account, credit, and preset data within a private, access-controlled database.</li>
+          </ul>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>Your Rights</h3>
+          <p>You may request a copy of your stored data, correction of inaccurate data, or complete deletion of your account and all associated data at any time by emailing us. We will respond within 14 business days.</p>
+          <div class="legal-highlight">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <p>To exercise your rights or raise a privacy concern, contact us at <strong>legal@reeld.app</strong>. Please include your registered email address in the request.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Terms & Conditions ── -->
+    <section class="legal-section terms" id="terms" aria-labelledby="terms-heading">
+      <div class="legal-section-header">
+        <p class="section-label" style="color:var(--green)">Document 02</p>
+        <h2 class="section-heading" id="terms-heading">Terms &amp; Conditions</h2>
+        <p class="section-updated">Effective: April 20, 2025</p>
+      </div>
+      <div class="legal-body">
+
+        <div class="legal-block">
+          <h3>The Service</h3>
+          <p>ReelD is a web platform that converts voice-over audio recordings into vertical short-form video reels. The service includes Whisper-based audio transcription, segment-level visual composition, preset management, and H.264 video rendering via FFmpeg.</p>
+          <p>By accessing or using ReelD, you agree to these Terms. If you disagree with any part, you may not use the service.</p>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>Account Creation</h3>
+          <p>Accounts are created exclusively through Google OAuth. You must have a valid Google account to use ReelD. You are responsible for all activity that occurs under your account.</p>
+          <p>Upon signup, your account is credited with <strong style="color:var(--text)">100 free credits</strong> — no credit card required. These credits do not expire but are non-transferable and have no monetary value.</p>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>Credit System</h3>
+          <div class="legal-highlight" style="margin-bottom:14px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p><strong>1 credit = 1 second of exported reel.</strong> Credits are deducted only when you successfully export a video. Drafts, edits, transcription, and preset changes do not consume credits.</p>
+          </div>
+          <ul class="legal-list">
+            <li>Purchased credits are priced at <strong style="color:var(--text)">₹0.5 per credit</strong> during the early access period. Pricing may change with advance notice.</li>
+            <li>Credits are account-bound and cannot be transferred to another user.</li>
+            <li>If a render fails due to a platform error, the deducted credits are refunded automatically. If the failure is due to invalid or corrupt input files, credits are not refunded.</li>
+            <li>ReelD reserves the right to grant or adjust credits at its sole discretion for promotional or compensatory purposes.</li>
+          </ul>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>Acceptable Use</h3>
+          <p>You agree not to use ReelD to create, upload, or distribute content that:</p>
+          <ul class="legal-list">
+            <li>Infringes the copyright, trademark, or intellectual property rights of any third party.</li>
+            <li>Contains hate speech, harassment, graphic violence, or sexually explicit material.</li>
+            <li>Impersonates individuals, spreads deliberate misinformation, or constitutes fraud.</li>
+            <li>Violates any applicable local, national, or international law or regulation.</li>
+          </ul>
+          <p style="margin-top:12px">ReelD may remove content and terminate accounts that violate these terms without prior notice.</p>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>Content Ownership</h3>
+          <p>You retain full ownership of all audio, video, image, and text content you upload to ReelD. By uploading, you grant ReelD a limited, non-exclusive, royalty-free licence to process and store your content solely for the purpose of rendering your reels.</p>
+          <p>ReelD does not claim any ownership over your content and will never use your uploaded files for training AI models or any purpose outside of rendering your requested output.</p>
+          <p>Uploaded source files and rendered outputs are automatically deleted after <strong style="color:var(--text)">30 days</strong>. You are responsible for downloading and retaining your own output files.</p>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>Service Availability &amp; Limitations</h3>
+          <p>ReelD is provided on an "as-is" and "as-available" basis. We make no guarantees of uptime, rendering speed, or uninterrupted access. We are not liable for losses arising from service unavailability, render failures, or data loss beyond our reasonable control.</p>
+          <p>Rendering times depend on server load and input file length. Long-form audio files may take several minutes to process.</p>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>Termination</h3>
+          <p>You may delete your account at any time. We reserve the right to suspend or terminate accounts that violate these Terms, without notice or refund of remaining credits.</p>
+          <p>Upon termination, all your data (files, presets, credit balance) is permanently deleted within 14 business days.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Refund Policy ── -->
+    <section class="legal-section refund" id="refund" aria-labelledby="refund-heading">
+      <div class="legal-section-header">
+        <p class="section-label" style="color:#4d9eff">Document 03</p>
+        <h2 class="section-heading" id="refund-heading">Return &amp; Refund Policy</h2>
+        <p class="section-updated">Effective: April 20, 2025</p>
+      </div>
+      <div class="legal-body">
+
+        <div class="legal-block">
+          <h3>Digital Credits — General Policy</h3>
+          <p>ReelD sells digital credits that are consumed when you export a reel. Because credits are a digital good that can be immediately used, they follow specific refund rules detailed below.</p>
+          <div class="legal-highlight" style="border-color:rgba(77,158,255,0.2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4d9eff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p><strong>Consumed credits are non-refundable.</strong> Once credits have been deducted for an export, they cannot be returned regardless of whether you are satisfied with the rendered output.</p>
+          </div>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>Refund Eligibility for Purchased Credits</h3>
+          <p>Unused purchased credits may be eligible for a refund under the following conditions:</p>
+          <ul class="legal-list">
+            <li>The refund is requested within <strong style="color:var(--text)">7 days</strong> of the original purchase date.</li>
+            <li>The credits from that specific purchase have not been fully consumed at the time of the request.</li>
+            <li>Only the <em>unconsumed portion</em> of a purchase is eligible. Partially consumed purchase batches are refunded pro-rata.</li>
+          </ul>
+          <div class="legal-highlight" style="margin-top:12px;border-color:rgba(77,158,255,0.15)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4d9eff" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+            <p><strong>Free credits (signup bonus or promotional credits)</strong> are not eligible for refund. Only paid purchases qualify.</p>
+          </div>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>How to Request a Refund</h3>
+          <p>To request a refund, email us at <strong style="color:var(--text)">refunds@reeld.app</strong> with the following information:</p>
+          <ul class="legal-list">
+            <li>Your registered email address.</li>
+            <li>The Razorpay Order ID or Payment ID from your purchase confirmation.</li>
+            <li>The reason for your refund request.</li>
+          </ul>
+          <p style="margin-top:12px">We will review your request and respond within <strong style="color:var(--text)">3 business days</strong>. Approved refunds are processed back to your original payment method within <strong style="color:var(--text)">5–7 business days</strong>, subject to your bank's processing times.</p>
+        </div>
+
+        <div class="legal-divider"></div>
+
+        <div class="legal-block">
+          <h3>Payment Gateway</h3>
+          <p>All credit purchases on ReelD are processed through <strong style="color:var(--text)">Razorpay</strong>, a PCI-DSS compliant payment gateway. ReelD does not store your card number, CVV, or banking credentials at any point.</p>
+          <p>In the event of a failed payment where your bank was charged but credits were not added to your account, please contact us immediately with your payment reference. We will investigate and resolve it within 5 business days.</p>
+          <div class="legal-highlight" style="border-color:rgba(77,158,255,0.15)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4d9eff" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <p>For payment disputes, you may also raise a complaint directly with Razorpay at <strong>support.razorpay.com</strong>. Provide your Razorpay Payment ID for faster resolution.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</div>
+</main>
+
+<!-- ── Footer ── -->
+<footer aria-label="Site footer">
+  <div class="footer-inner">
+    <div class="footer-logo">Reel<span>D</span></div>
+    <div class="footer-links">
+      <a href="/">← Back to Home</a>
+      <a href="/auth/google">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In
+      </a>
+      <a href="https://github.com/armedjuror/ReelD" target="_blank" rel="noopener" class="btn-contribute">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.57v-2.01c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.005 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        Contribute on GitHub
+      </a>
+    </div>
+    <div class="footer-copy">© 2025 ReelD</div>
+  </div>
+</footer>
+
+<script>
+// Active tab highlight on scroll
+const sections = document.querySelectorAll('.legal-section[id]');
+const tabLinks = document.querySelectorAll('.tab-link[data-tab]');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tabLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.tab-link[data-tab="${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-60px 0px -60% 0px', threshold: 0 });
+
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

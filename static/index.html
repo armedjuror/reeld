@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ReelD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0c0e;--surface:#141416;--surface2:#1c1c1f;--surface3:#242428;
+  --border:#2a2a2f;--border2:#333338;--text:#f0f0f2;--muted:#6b6b75;--muted2:#4a4a52;
+  --accent:#ff6b35;--accent2:#ff8c5a;--accent-dim:rgba(255,107,53,0.12);--accent-dim2:rgba(255,107,53,0.06);
+  --green:#2dd4a0;--blue:#4d9eff;--r:12px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+#app{display:flex;height:100vh;overflow:hidden}
+#sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column}
+#main{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
+.logo-mark{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-0.5px}
+.logo-mark span{color:var(--accent)}
+.logo-sub{font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:0.5px}
+.nav-group{padding:16px 12px 8px}
+.nav-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);padding:0 8px;margin-bottom:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--muted);transition:all .15s;font-size:13px;font-weight:500}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-dim);color:var(--accent)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.sidebar-bottom{margin-top:auto;padding:16px;border-top:1px solid var(--border)}
+.version-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);background:var(--surface2);padding:4px 8px;border-radius:4px;display:inline-block}
+.topbar{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;background:var(--surface);flex-shrink:0}
+.topbar-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;letter-spacing:-0.3px}
+.topbar-title span{color:var(--muted);font-weight:400}
+.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.page{display:none;flex:1;overflow:hidden;flex-direction:column}
+.page.active{display:flex}
+.page-scroll{flex:1;overflow-y:auto;padding:28px 32px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2)}
+.btn-secondary{background:var(--surface3);color:var(--text);border:1px solid var(--border2)}.btn-secondary:hover{background:var(--surface2)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn-danger{background:rgba(255,70,70,0.12);color:#ff6060;border:1px solid rgba(255,70,70,0.2)}.btn-danger:hover{background:rgba(255,70,70,0.2)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn[disabled]{opacity:0.4;cursor:not-allowed;pointer-events:none}
+.btn svg{width:14px;height:14px;flex-shrink:0}
+.form-group{margin-bottom:18px}
+.form-row{display:grid;gap:16px}
+.form-row.cols2{grid-template-columns:1fr 1fr}
+.form-row.cols3{grid-template-columns:1fr 1fr 1fr}
+.form-row.cols4{grid-template-columns:1fr 1fr 1fr 1fr}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:500}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border .15s}
+input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{border-color:var(--accent)}
+select option{background:var(--surface2)}
+input[type=color]{width:100%;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;padding:2px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.range-row{display:flex;align-items:center;gap:12px}
+.range-row input{flex:1}
+.range-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);min-width:40px;text-align:right}
+.toggle{display:flex;align-items:center;gap:10px;cursor:pointer}
+.toggle input{width:32px;height:18px;accent-color:var(--accent);cursor:pointer}
+.toggle-label{font-size:13px;color:var(--text)}
+.file-upload{border:1.5px dashed var(--border2);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.file-upload:hover{border-color:var(--accent);background:var(--accent-dim2)}
+.file-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-upload p{font-size:12px;color:var(--muted)}
+.file-upload p strong{color:var(--text)}
+.file-set{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:8px;font-size:12px;margin-top:6px}
+.file-set .file-name{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-set .file-clear{color:var(--muted);cursor:pointer}.file-set .file-clear:hover{color:#ff6060}
+.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.section-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:20px}
+/* presets */
+.presets-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.preset-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .2s}
+.preset-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.preset-card-preview{height:140px;background:var(--surface2);display:flex;align-items:center;justify-content:center}
+.preview-phone{width:56px;height:100px;border-radius:4px;border:1.5px solid var(--border2);position:relative;overflow:hidden;background:#111}
+.preview-line{height:5px;border-radius:2px;background:rgba(255,255,255,0.6);margin:0 auto 4px}
+.preview-vis-block{height:40px;margin:4px;border-radius:2px;background:rgba(255,255,255,0.15)}
+.preset-card-info{padding:14px 16px}
+.preset-card-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px}
+.preset-card-meta{font-size:11px;color:var(--muted);display:flex;gap:8px}
+.preset-card-actions{display:flex;gap:6px;margin-top:12px}
+.new-preset-card{border:1.5px dashed var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:220px;color:var(--muted);transition:all .2s;cursor:pointer;border-radius:var(--r)}
+.new-preset-card:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim2)}
+.new-preset-card svg{width:28px;height:28px}
+/* preset editor panel */
+#preset-editor{position:fixed;inset:0;z-index:100;display:none}
+#preset-editor.open{display:flex}
+.editor-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)}
+.editor-panel{position:relative;z-index:1;width:720px;max-width:96vw;height:100vh;background:var(--surface);border-left:1px solid var(--border);margin-left:auto;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,0.5);animation:slideIn .2s ease}
+@keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+.editor-panel-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;flex-shrink:0}
+.editor-panel-title{font-family:'Syne',sans-serif;font-weight:800;font-size:17px}
+.editor-panel-body{flex:1;overflow-y:auto;padding:24px}
+.editor-panel-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0}
+.editor-tabs{display:flex;gap:2px;background:var(--surface2);padding:3px;border-radius:9px;margin-bottom:24px}
+.editor-tab{flex:1;text-align:center;padding:7px 8px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:500;color:var(--muted);transition:all .15s}
+.editor-tab.active{background:var(--surface3);color:var(--text)}
+.editor-tab-pane{display:none}
+.editor-tab-pane.active{display:block}
+/* canvas picker */
+.canvas-picker-wrap{display:flex;gap:20px;align-items:flex-start}
+.canvas-picker-preview{flex-shrink:0}
+.canvas-picker-preview canvas{border-radius:8px;border:1px solid var(--border2);cursor:crosshair;display:block}
+.canvas-picker-info{flex:1}
+.canvas-picker-info .px-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.canvas-picker-hint{font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.6}
+/* generate page */
+.gen-body{display:flex;flex:1;overflow:hidden}
+.gen-left{width:340px;min-width:340px;border-right:1px solid var(--border);padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.gen-right{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.gen-right-header{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.seg-count{font-size:12px;color:var(--muted);background:var(--surface2);padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace}
+.segments-list{flex:1;min-height:0;overflow-y:auto;padding:16px 24px;display:flex;flex-direction:column;gap:10px}
+.step-strip{display:flex;align-items:center;padding:0 32px;height:52px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.step-item{display:flex;align-items:center;gap:8px;padding:0 16px;height:100%;opacity:0.4;transition:opacity .15s}
+.step-item.active{opacity:1}
+.step-item.done{opacity:0.7}
+.step-num{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:'DM Mono',monospace;flex-shrink:0}
+.step-item.active .step-num{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.step-item.done .step-num{background:var(--green);border-color:var(--green);color:#000}
+.step-label{font-size:12px;font-weight:500}
+.step-sep{width:24px;height:1px;background:var(--border);flex-shrink:0}
+/* segment cards */
+.seg-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;transition:border .15s;flex-shrink:0}
+.seg-card:hover{border-color:var(--border2)}
+.seg-card.has-visual{border-color:rgba(77,158,255,0.3)}
+.seg-card.intro-pinned{border-color:rgba(180,100,255,0.4)}
+.seg-card-top{padding:12px 14px;display:flex;align-items:center;gap:8px}
+.seg-index{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);min-width:24px}
+.seg-play-btn{background:none;border:1.5px solid var(--border2);color:var(--muted);border-radius:4px;width:22px;height:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;transition:all .15s}
+.seg-play-btn:hover{border-color:var(--accent);color:var(--accent)}
+.seg-play-btn.playing{border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,0.1)}
+.seg-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface2);padding:2px 8px;border-radius:4px;display:flex;align-items:center;gap:0}
+.seg-time-val{cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s}
+.seg-time-val:hover{background:var(--border)}
+.seg-time-val[contenteditable=true]{background:var(--surface3);outline:none;border:1px solid var(--accent);border-radius:3px;padding:1px 4px;min-width:32px;color:var(--text)}
+.seg-time-sep{margin:0 2px;color:var(--muted2)}
+.seg-delete-btn{opacity:0.45;transition:opacity .15s;padding:2px 6px;font-size:11px}
+.seg-delete-btn:hover{opacity:1}
+.seg-drag-handle{cursor:grab;color:var(--muted2);display:flex;align-items:center;flex-shrink:0;opacity:0.4;transition:opacity .15s;padding:0 2px}
+.seg-drag-handle:active{cursor:grabbing}
+.seg-card:hover .seg-drag-handle{opacity:0.8}
+.seg-card.dragging{opacity:0.35;border-style:dashed}
+.seg-card.drag-over-top{border-top:2px solid var(--accent)!important}
+.seg-card.drag-over-bottom{border-bottom:2px solid var(--accent)!important}
+.seg-card.main-playing{border-color:#4ade80!important;box-shadow:0 0 0 1px rgba(74,222,128,0.2)}
+.seg-card.main-paused-at{border-color:#fbbf24!important;box-shadow:0 0 0 1px rgba(251,191,36,0.15)}
+.main-play-btn{gap:6px}
+.main-play-btn.playing{border-color:#4ade80;color:#4ade80}
+.main-play-btn.paused{border-color:#fbbf24;color:#fbbf24}
+.seg-badges{display:flex;gap:4px;margin-left:auto}
+.badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;letter-spacing:0.3px;font-family:'DM Mono',monospace}
+.badge-text{background:var(--surface3);color:var(--muted)}
+.badge-visual{background:rgba(77,158,255,0.15);color:var(--blue)}
+.badge-intro{background:rgba(180,100,255,0.15);color:#b464ff}
+.seg-caption-wrap{padding:0 14px 12px}
+.seg-caption{font-size:13px;line-height:1.6;color:var(--text);cursor:text;padding:8px 10px;border-radius:6px;border:1.5px solid transparent;transition:border .15s;word-break:break-word}
+.seg-caption:hover{border-color:var(--border)}
+.seg-caption[contenteditable=true]{border-color:var(--accent);background:var(--surface2);outline:none}
+.seg-caption .hi{color:var(--accent);font-weight:600}
+.seg-actions{padding:0 14px 6px;display:flex;gap:6px;flex-wrap:wrap}
+.seg-toggles{padding:0 14px 12px;display:flex;gap:14px}
+.seg-toggle{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer;user-select:none}
+.seg-toggle input{accent-color:var(--accent);cursor:pointer}
+.seg-upload-zone{margin:0 14px 12px;border:1.5px dashed var(--border2);border-radius:7px;padding:14px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.seg-upload-zone:hover{border-color:var(--blue);background:rgba(77,158,255,0.05)}
+.seg-upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.seg-upload-zone p{font-size:11px;color:var(--muted)}
+.seg-visual-preview{margin:0 14px 12px;border-radius:7px;overflow:hidden;position:relative;background:#000}
+.seg-visual-preview video,.seg-visual-preview img{width:100%;height:80px;display:block;border-radius:7px}
+.seg-visual-preview .remove-vis{position:absolute;top:6px;right:6px;width:22px;height:22px;background:rgba(0,0,0,0.7);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:11px}
+.vis-mode-toggle{position:absolute;bottom:6px;left:6px;display:flex;gap:3px;background:rgba(0,0,0,0.6);border-radius:4px;padding:2px}
+.vis-mode-toggle button{border:none;background:transparent;color:rgba(255,255,255,0.6);font-size:10px;padding:2px 6px;border-radius:3px;cursor:pointer;line-height:1.4}
+.vis-mode-toggle button.active{background:var(--accent);color:#fff}
+/* silence section */
+#silence-section{border:1.5px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+#silence-stats{background:var(--surface2);border-radius:7px;padding:10px 12px;font-size:12px;color:var(--text);line-height:1.7}
+#silence-stats .stat-row{display:flex;justify-content:space-between;align-items:center}
+#silence-stats .stat-label{color:var(--muted)}
+#silence-stats .stat-removed{color:#4ade80;font-weight:600;font-family:'DM Mono',monospace}
+#silence-stats .stat-saving{color:var(--accent);font-weight:600;font-family:'DM Mono',monospace}
+/* export overlay */
+#export-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px)}
+#export-overlay.show{display:flex}
+.export-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;width:380px;text-align:center}
+.export-modal h3{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:8px}
+.export-modal p{color:var(--muted);font-size:13px;margin-bottom:24px}
+.export-progress{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:16px}
+.export-progress-bar{height:100%;background:var(--accent);border-radius:2px;transition:width .3s;width:0%}
+.export-steps{text-align:left;display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.export-step{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.export-step.active{color:var(--text)}
+.export-step.done{color:var(--green)}
+.export-step-dot{width:6px;height:6px;border-radius:50%;background:var(--muted2);flex-shrink:0}
+.export-step.active .export-step-dot{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.export-step.done .export-step-dot{background:var(--green)}
+/* reels page */
+.reels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.reel-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;cursor:pointer;transition:all .2s}
+.reel-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.reel-card-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px}
+.reel-card-meta{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+.reel-card-status{display:inline-flex;align-items:center;gap:5px;margin-top:10px}
+.status-dot{width:6px;height:6px;border-radius:50%}
+.reel-card-actions{display:flex;gap:6px;margin-top:14px}
+.new-reel-card{border:1.5px dashed var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:160px;color:var(--muted);transition:all .2s;cursor:pointer;border-radius:var(--r); padding: 50px;}
+.new-reel-card:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim2)}
+/* name modal */
+#name-modal{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px)}
+#name-modal.show{display:flex}
+.name-modal-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;width:360px}
+.name-modal-box h3{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;margin-bottom:6px}
+.name-modal-box p{color:var(--muted);font-size:13px;margin-bottom:20px}
+/* misc */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--muted);padding:40px}
+.empty-state svg{width:40px;height:40px;opacity:0.3}
+.empty-state p{font-size:13px;text-align:center;max-width:260px;line-height:1.6}
+#toast{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{background:var(--surface2);border:1px solid var(--border2);padding:10px 16px;border-radius:9px;font-size:13px;animation:toastIn .2s ease;box-shadow:0 4px 24px rgba(0,0,0,0.4);max-width:280px}
+.toast-item.error{border-color:rgba(255,70,70,0.4);background:rgba(255,70,70,0.1);color:#ff8080}
+.toast-item.success{border-color:rgba(45,212,160,0.4);background:rgba(45,212,160,0.1);color:var(--green)}
+@keyframes toastIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.w-full{width:100%}
+/* ── Credits ── */
+.credits-chip{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;cursor:pointer;transition:all .15s}
+.credits-chip:hover{border-color:var(--accent);background:var(--accent-dim)}
+.credits-chip .cr-icon{font-size:14px}
+.credits-chip .cr-val{font-family:'DM Mono',monospace;font-weight:500;color:var(--accent)}
+.credits-chip .cr-label{color:var(--muted);font-size:11px}
+.pro-badge{background:linear-gradient(135deg,#f5a623,#ff6b35);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace;letter-spacing:0.5px}
+/* ── Billing page ── */
+#page-billing .txn-table{width:100%;border-collapse:collapse;font-size:13px}
+#page-billing .txn-table th{text-align:left;padding:8px 12px;color:var(--muted);font-weight:500;font-size:11px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.5px}
+#page-billing .txn-table td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+#page-billing .txn-table tr:last-child td{border-bottom:none}
+#page-billing .txn-table tr:hover td{background:var(--surface2)}
+.txn-credit{color:var(--green);font-family:'DM Mono',monospace;font-weight:600}
+.txn-debit{color:#ff8080;font-family:'DM Mono',monospace;font-weight:600}
+.txn-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.txn-badge.recharge{background:rgba(45,212,160,0.12);color:var(--green)}
+.txn-badge.deduction{background:rgba(255,107,53,0.12);color:var(--accent)}
+/* ── Modals ── */
+.billing-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px)}
+.billing-modal.show{display:flex}
+.billing-modal-box{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:32px;width:420px;max-width:95vw}
+.billing-modal-box h3{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;margin-bottom:6px}
+.billing-modal-box p.sub{color:var(--muted);font-size:13px;margin-bottom:24px}
+.price-preview{background:var(--surface2);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.price-preview .pr-label{font-size:12px;color:var(--muted)}
+.price-preview .pr-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:600;color:var(--text)}
+.price-preview .pr-orig{font-size:11px;color:var(--muted2);text-decoration:line-through}
+.price-preview .pr-off{font-size:11px;color:var(--green);background:rgba(45,212,160,0.12);padding:1px 6px;border-radius:4px}
+/* ── Printable invoice ── */
+@media print {
+  body > * { display: none !important; }
+  #print-invoice { display: block !important; }
+}
+#print-invoice{display:none;padding:40px;font-family:'DM Sans',sans-serif;color:#111}
+#print-invoice h1{font-size:24px;font-weight:800;margin-bottom:4px}
+#print-invoice .inv-meta{font-size:12px;color:#666;margin-bottom:24px}
+#print-invoice table{width:100%;border-collapse:collapse;margin-bottom:24px}
+#print-invoice th{border-bottom:2px solid #eee;padding:8px;text-align:left;font-size:12px;color:#666}
+#print-invoice td{padding:10px 8px;border-bottom:1px solid #f0f0f0;font-size:13px}
+#print-invoice .inv-total{text-align:right;font-size:16px;font-weight:700}
+</style>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+<div id="app">
+  <div id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">Reel<span>D</span></div>
+      <div class="logo-sub">VIDEO AUTOMATION</div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Workspace</div>
+      <div class="nav-item active" data-page="reels" onclick="showPage('reels',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><polygon points="10,9 16,12 10,15" fill="currentColor" stroke="none"/></svg>
+        Reels
+      </div>
+      <div class="nav-item" data-page="presets" onclick="showPage('presets',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Presets
+      </div>
+      <div class="nav-item" data-page="billing" onclick="showPage('billing',this);loadBillingPage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Billing
+      </div>
+    </div>
+    <div id="credits-sidebar" style="padding:8px 12px 4px;display:none">
+      <div class="credits-chip" onclick="openRechargeModal()" id="credits-chip-btn">
+        <span class="cr-icon">⚡</span>
+        <span class="cr-val" id="sidebar-credits">—</span>
+        <span class="cr-label">credits</span>
+      </div>
+    </div>
+    <div class="sidebar-bottom">
+      <div id="sidebar-user" style="display:none;align-items:center;gap:8px;padding:0 12px 12px">
+        <img id="sidebar-avatar" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0" src="" alt="">
+        <div style="min-width:0;flex:1">
+          <div id="sidebar-name" style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+          <div id="sidebar-email" style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+        </div>
+        <a href="/auth/logout" title="Sign out" style="color:var(--muted);flex-shrink:0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </a>
+      </div>
+      <div class="version-badge">v0.3.0</div>
+    </div>
+  </div>
+
+  <div id="main">
+
+    <!-- REELS PAGE -->
+    <div id="page-reels" class="page active">
+      <div class="topbar">
+        <span class="topbar-title">Reels</span>
+        <div class="topbar-right">
+          <button class="btn btn-primary" onclick="newReelFlow()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Reel
+          </button>
+        </div>
+      </div>
+      <div class="page-scroll">
+        <div class="reels-grid" id="reels-grid">
+          <div class="new-reel-card" onclick="newReelFlow()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span style="font-size:13px;font-weight:500">New Reel</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR PAGE -->
+    <div id="page-generate" class="page" style="flex-direction:column">
+      <div class="topbar">
+        <span class="topbar-title" id="editor-reel-title" onclick="startEditReelName()" title="Click to rename" style="cursor:pointer">Editor <span>/ New Reel</span></span>
+        <div class="topbar-right">
+          <button class="btn btn-ghost btn-sm" onclick="saveReelDraft()">Save Draft</button>
+          <button class="btn btn-primary btn-sm" id="export-btn" onclick="startExport()" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+        </div>
+      </div>
+      <div class="step-strip">
+        <div class="step-item active" id="step-1"><div class="step-num">1</div><div class="step-label">Setup</div></div>
+        <div class="step-sep"></div>
+        <div class="step-item" id="step-2"><div class="step-num">2</div><div class="step-label">Clean</div></div>
+        <div class="step-sep"></div>
+        <div class="step-item" id="step-3"><div class="step-num">3</div><div class="step-label">Transcribe</div></div>
+        <div class="step-sep"></div>
+        <div class="step-item" id="step-4"><div class="step-num">4</div><div class="step-label">Review</div></div>
+        <div class="step-sep"></div>
+        <div class="step-item" id="step-5"><div class="step-num">5</div><div class="step-label">Export</div></div>
+      </div>
+      <div class="gen-body">
+        <!-- left panel -->
+        <div class="gen-left">
+          <div>
+            <div class="section-title">Preset</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <select id="preset-select" onchange="onPresetChange()" style="flex:1">
+                <option value="">— Select a preset —</option>
+              </select>
+              <button class="btn btn-ghost btn-sm" onclick="openPresetEditor(state.selectedPresetId||null)" title="Edit selected preset" style="flex-shrink:0">Edit</button>
+            </div>
+          </div>
+          <div>
+            <div class="section-title">Voiceover</div>
+            <div id="audio-upload-zone" class="file-upload">
+              <input type="file" accept="audio/*" onchange="onAudioUpload(this)"/>
+              <p><strong>Click to upload</strong> voiceover</p>
+              <p style="font-size:11px;margin-top:4px">M4A, MP3, WAV, AAC</p>
+            </div>
+            <div id="audio-file-set" class="file-set" style="display:none">
+              <span class="file-name" id="audio-file-name"></span>
+              <span class="file-clear" onclick="clearAudio()">✕</span>
+            </div>
+          </div>
+          <div>
+            <div class="section-title">Intro <span style="font-size:10px;color:var(--muted2);text-transform:none;letter-spacing:0;font-weight:400">— optional</span></div>
+            <div id="intro-upload-zone" class="file-upload">
+              <input type="file" accept="video/*" onchange="onIntroUpload(this)"/>
+              <p><strong>Upload</strong> intro clip</p>
+            </div>
+            <div id="intro-file-set" class="file-set" style="display:none">
+              <span class="file-name" id="intro-file-name"></span>
+              <span class="file-clear" onclick="clearIntro()">✕</span>
+            </div>
+          </div>
+          <div>
+            <div class="section-title">Outro <span style="font-size:10px;color:var(--muted2);text-transform:none;letter-spacing:0;font-weight:400">— optional</span></div>
+            <div id="outro-upload-zone" class="file-upload">
+              <input type="file" accept="video/*" onchange="onOutroUpload(this)"/>
+              <p><strong>Upload</strong> outro clip</p>
+            </div>
+            <div id="outro-file-set" class="file-set" style="display:none">
+              <span class="file-name" id="outro-file-name"></span>
+              <span class="file-clear" onclick="clearOutro()">✕</span>
+            </div>
+          </div>
+          <!-- Step 2: Clean Audio -->
+          <div id="silence-section" style="display:none">
+            <div class="section-title">Clean Audio</div>
+            <div class="form-row">
+              <label>Min silence</label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="range" id="sil-min-len" min="0.3" max="5" step="0.1" value="1.0"
+                       oninput="document.getElementById('sil-min-len-val').textContent=parseFloat(this.value).toFixed(1)+'s'">
+                <span id="sil-min-len-val" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);min-width:36px">1.0s</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>Edge padding</label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="range" id="sil-padding" min="0.05" max="0.5" step="0.05" value="0.15"
+                       oninput="document.getElementById('sil-padding-val').textContent=parseFloat(this.value).toFixed(2)+'s'">
+                <span id="sil-padding-val" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);min-width:40px">0.15s</span>
+              </div>
+            </div>
+            <div id="silence-stats" style="display:none"></div>
+            <div style="display:flex;gap:6px;margin-top:4px">
+              <button class="btn btn-primary" id="silence-run-btn" onclick="doRemoveSilence()" style="flex:1">Remove Silences</button>
+              <button class="btn btn-ghost btn-sm" onclick="skipSilenceRemoval()">Skip</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary w-full" id="transcribe-btn" onclick="doTranscribe()" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Transcribe Audio
+          </button>
+        </div>
+        <!-- right panel: segments -->
+        <div class="gen-right">
+          <div class="gen-right-header">
+            <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">Segments</span>
+            <span class="seg-count" id="seg-count">0 segments</span>
+            <span class="seg-count" id="total-duration" style="display:none"></span>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+              <span style="font-size:12px;color:var(--muted)">Wrap in <span style="color:var(--accent);font-family:'DM Mono',monospace">*asterisks*</span> to highlight</span>
+              <button class="btn btn-secondary btn-sm main-play-btn" id="main-play-btn" onclick="toggleMainPlay()" style="display:none">&#9654; Play All</button>
+              <button class="btn btn-secondary btn-sm" id="add-seg-btn" onclick="addSegmentAtEnd()" style="display:none">+ Add</button>
+            </div>
+          </div>
+          <div class="segments-list" id="segments-list">
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+              <p>Upload a voiceover and click <strong>Transcribe Audio</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRESETS PAGE -->
+    <div id="page-presets" class="page">
+      <div class="topbar">
+        <span class="topbar-title">Presets</span>
+        <div class="topbar-right">
+          <button class="btn btn-secondary" onclick="openImportPreset()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Import
+          </button>
+          <button class="btn btn-primary" onclick="openPresetEditor(null)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Preset
+          </button>
+        </div>
+      </div>
+      <div class="page-scroll">
+        <div class="presets-grid" id="presets-grid">
+          <div class="new-preset-card" onclick="openPresetEditor(null)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>New Preset</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BILLING PAGE -->
+    <div id="page-billing" class="page">
+      <div class="topbar">
+        <span class="topbar-title">Billing</span>
+        <div class="topbar-right">
+          <button class="btn btn-primary btn-sm" onclick="openRechargeModal()">⚡ Recharge Credits</button>
+        </div>
+      </div>
+      <div class="page-scroll">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px">
+          <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px">
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Credit Balance</div>
+            <div style="font-family:'DM Mono',monospace;font-size:28px;font-weight:600;color:var(--accent)" id="billing-balance">—</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">1 credit = 1 second of reel</div>
+          </div>
+          <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px">
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Account Type</div>
+            <div style="font-size:18px;font-weight:700;margin-top:4px" id="billing-account-type">—</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px" id="billing-price-note">—</div>
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-weight:600;font-size:14px">Transaction History</span>
+            <span style="font-size:11px;color:var(--muted)" id="billing-txn-count"></span>
+          </div>
+          <div id="billing-txn-body" style="min-height:80px">
+            <div style="padding:32px;text-align:center;color:var(--muted);font-size:13px">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PRESET EDITOR PANEL -->
+<div id="preset-editor">
+  <div class="editor-backdrop" onclick="closePresetEditor()"></div>
+  <div class="editor-panel">
+    <div class="editor-panel-header">
+      <button class="btn btn-ghost btn-sm" onclick="closePresetEditor()">✕</button>
+      <div class="editor-panel-title" id="editor-title">New Preset</div>
+    </div>
+    <div class="editor-panel-body">
+      <div class="form-group">
+        <label>Preset Name</label>
+        <input type="text" id="p-name" placeholder="e.g. Story Reel – Dark"/>
+      </div>
+      <div class="editor-tabs">
+        <div class="editor-tab active" onclick="switchTab(this,'tab-bg')">Background</div>
+        <div class="editor-tab" onclick="switchTab(this,'tab-audio')">BGM</div>
+        <div class="editor-tab" onclick="switchTab(this,'tab-caption')">Caption</div>
+        <div class="editor-tab" onclick="switchTab(this,'tab-layout')">Layout</div>
+        <div class="editor-tab" onclick="switchTab(this,'tab-transitions')">Transitions</div>
+      </div>
+
+      <!-- Background -->
+      <div class="editor-tab-pane active" id="tab-bg">
+        <div class="section-block">
+          <div class="form-row cols2">
+            <div class="form-group" style="margin-bottom:0"><label>Width px</label><input type="number" id="p-res-w" value="1080"/></div>
+            <div class="form-group" style="margin-bottom:0"><label>Height px</label><input type="number" id="p-res-h" value="1920"/></div>
+          </div>
+          <div class="form-group" style="margin-top:16px">
+            <label>Background Type</label>
+            <select id="p-bg-type" onchange="onBgTypeChange()">
+              <option value="color">Solid Color</option>
+              <option value="image">Image</option>
+              <option value="video">Video (loops)</option>
+            </select>
+          </div>
+          <div id="bg-color-row" class="form-group" style="margin-bottom:0">
+            <label>Color</label>
+            <input type="color" id="p-bg-color" value="#0a0a0a" oninput="['vis','frame','text'].forEach(t=>drawCanvas(t))"/>
+          </div>
+          <div id="bg-file-row" style="display:none" class="form-group" style="margin-bottom:0">
+            <label>File</label>
+            <div class="file-upload"><input type="file" accept="image/*,video/*" onchange="onPresetFileUpload(this,'background','p-bg-file-name')"/><p><strong>Upload</strong> background</p></div>
+            <div id="p-bg-file-name" class="file-set" style="display:none"><span class="file-name"></span><span class="file-clear" onclick="clearPresetFile('p-bg-file-name','background_file')">✕</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BGM -->
+      <div class="editor-tab-pane" id="tab-audio">
+        <div class="section-block">
+          <div class="form-group">
+            <label>BGM File</label>
+            <div class="file-upload"><input type="file" accept="audio/*" onchange="onPresetFileUpload(this,'bgm','p-bgm-file-name')"/><p><strong>Upload</strong> BGM track</p></div>
+            <div id="p-bgm-file-name" class="file-set" style="display:none"><span class="file-name"></span><span class="file-clear" onclick="clearPresetFile('p-bgm-file-name','bgm_file')">✕</span></div>
+          </div>
+          <div class="form-group">
+            <label>BGM Volume</label>
+            <div class="range-row"><input type="range" id="p-bgm-vol" min="0" max="1" step="0.01" value="0.15" oninput="updateRangeVal('p-bgm-vol','p-bgm-vol-val',v=>Math.round(v*100)+'%')"/><span class="range-val" id="p-bgm-vol-val">15%</span></div>
+          </div>
+          <div class="form-group">
+            <label>Voice Volume</label>
+            <div class="range-row"><input type="range" id="p-voice-vol" min="0" max="1" step="0.01" value="1" oninput="updateRangeVal('p-voice-vol','p-voice-vol-val',v=>Math.round(v*100)+'%')"/><span class="range-val" id="p-voice-vol-val">100%</span></div>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>BGM Fade Out (s)</label>
+            <input type="number" id="p-bgm-fade" value="2" min="0" step="0.5"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Caption -->
+      <div class="editor-tab-pane" id="tab-caption">
+        <div class="section-block">
+          <div class="section-title">Font</div>
+          <div class="form-group">
+            <label>Font File</label>
+            <div class="file-upload"><input type="file" accept=".ttf,.otf,.woff" onchange="onPresetFileUpload(this,'font','p-font-file-name')"/><p><strong>Upload</strong> TTF / OTF</p></div>
+            <div id="p-font-file-name" class="file-set" style="display:none"><span class="file-name"></span><span class="file-clear" onclick="clearPresetFile('p-font-file-name','font_file')">✕</span></div>
+          </div>
+          <div class="form-group" style="margin-bottom:0"><label>Text Color</label><input type="color" id="p-text-color" value="#ffffff"/></div>
+        </div>
+        <div class="section-block">
+          <div class="section-title">Highlight</div>
+          <div class="form-row cols2">
+            <div class="form-group" style="margin-bottom:0"><label>Mode</label><select id="p-hi-mode"><option value="text">Colored Text</option><option value="pill">Pill Background</option></select></div>
+            <div class="form-group" style="margin-bottom:0"><label>Color</label><input type="color" id="p-hi-color" value="#f5a623"/></div>
+          </div>
+        </div>
+        <div class="section-block">
+          <div class="section-title">Without Visual (full screen)</div>
+          <div class="form-row cols3">
+            <div class="form-group" style="margin-bottom:0"><label>Font Size</label><input type="number" id="p-nv-size" value="72"/></div>
+            <div class="form-group" style="margin-bottom:0"><label>Animation</label><select id="p-nv-anim"><option value="typing">Typing</option><option value="wordbyword">Word by Word</option><option value="fade">Fade</option><option value="none">None</option></select></div>
+            <div class="form-group" style="margin-bottom:0"><label>Speed (ch/s)</label><input type="number" id="p-nv-speed" value="20" min="1" max="120"/></div>
+          </div>
+        </div>
+        <div class="section-block">
+          <div class="section-title">With Visual</div>
+          <div class="form-row cols3">
+            <div class="form-group" style="margin-bottom:0"><label>Font Size</label><input type="number" id="p-wv-size" value="52"/></div>
+            <div class="form-group" style="margin-bottom:0"><label>Animation</label><select id="p-wv-anim"><option value="typing">Typing</option><option value="wordbyword">Word by Word</option><option value="fade">Fade</option><option value="none">None</option></select></div>
+            <div class="form-group" style="margin-bottom:0"><label>Speed (ch/s)</label><input type="number" id="p-wv-speed" value="20" min="1" max="120"/></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layout (canvas picker) -->
+      <div class="editor-tab-pane" id="tab-layout">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.7">
+          Draw boxes on the preview to set positions. <strong style="color:var(--text)">Click and drag</strong> to define each area.
+          The canvas represents your video at <span id="canvas-res-label" style="color:var(--accent)">1080×1920</span>.
+        </p>
+
+        <div class="section-block">
+          <div class="section-title">Visual Container</div>
+          <div class="canvas-picker-wrap">
+            <div class="canvas-picker-preview">
+              <canvas id="canvas-vis" width="180" height="320"></canvas>
+              <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px">Visual area</div>
+            </div>
+            <div class="canvas-picker-info">
+              <div class="canvas-picker-hint">Drag to draw where the visual clip will appear. This defines the container that stock footage fills.</div>
+              <div class="px-fields">
+                <div><label>X</label><input type="number" id="p-vis-x" value="60" oninput="syncCanvasFromFields('vis')"/></div>
+                <div><label>Y</label><input type="number" id="p-vis-y" value="320" oninput="syncCanvasFromFields('vis')"/></div>
+                <div><label>Width</label><input type="number" id="p-vis-w" value="960" oninput="syncCanvasFromFields('vis')"/></div>
+                <div><label>Height</label><input type="number" id="p-vis-h" value="820" oninput="syncCanvasFromFields('vis')"/></div>
+              </div>
+              <div class="form-group" style="margin-top:12px;margin-bottom:0">
+                <label>Fade In Duration (s)</label>
+                <input type="number" id="p-vis-anim-dur" value="0.5" step="0.1"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title">Frame Overlay</div>
+          <div class="form-group">
+            <label class="toggle"><input type="checkbox" id="p-frame-enabled" onchange="onFrameToggle()"/><span class="toggle-label">Enable Frame Layer</span></label>
+          </div>
+          <div id="frame-config" style="display:none">
+            <div class="form-group">
+              <label>Frame File (image or video)</label>
+              <div class="file-upload"><input type="file" accept="image/*,video/*" onchange="onPresetFileUpload(this,'frame','p-frame-file-name')"/><p><strong>Upload</strong> frame graphic</p></div>
+              <div id="p-frame-file-name" class="file-set" style="display:none"><span class="file-name"></span><span class="file-clear" onclick="clearPresetFile('p-frame-file-name','frame_file')">✕</span></div>
+            </div>
+            <div class="canvas-picker-wrap">
+              <div class="canvas-picker-preview">
+                <canvas id="canvas-frame" width="180" height="320"></canvas>
+                <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px">Frame area</div>
+              </div>
+              <div class="canvas-picker-info">
+                <div class="canvas-picker-hint">Draw where the frame overlay sits. Usually slightly larger than the visual container.</div>
+                <div class="px-fields">
+                  <div><label>X</label><input type="number" id="p-frame-x" value="40" oninput="syncCanvasFromFields('frame')"/></div>
+                  <div><label>Y</label><input type="number" id="p-frame-y" value="300" oninput="syncCanvasFromFields('frame')"/></div>
+                  <div><label>Width</label><input type="number" id="p-frame-w" value="1000" oninput="syncCanvasFromFields('frame')"/></div>
+                  <div><label>Height</label><input type="number" id="p-frame-h" value="860" oninput="syncCanvasFromFields('frame')"/></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title">Text Position (with visual)</div>
+          <div class="canvas-picker-wrap">
+            <div class="canvas-picker-preview">
+              <canvas id="canvas-text" width="180" height="320"></canvas>
+              <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px">Text anchor</div>
+            </div>
+            <div class="canvas-picker-info">
+              <div class="canvas-picker-hint">Draw where text appears when a visual is present. For full-screen text, leave this and set position to center in Caption tab.</div>
+              <div class="px-fields">
+                <div><label>X</label><input type="number" id="p-wv-x" value="540" oninput="syncCanvasFromFields('text')"/></div>
+                <div><label>Y</label><input type="number" id="p-wv-y" value="1500" oninput="syncCanvasFromFields('text')"/></div>
+              </div>
+              <p style="font-size:11px;color:var(--muted);margin-top:8px">X/Y is the center-anchor of the text block.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transitions -->
+      <div class="editor-tab-pane" id="tab-transitions">
+        <div class="section-block">
+          <div class="form-row cols2">
+            <div class="form-group" style="margin-bottom:0"><label>Type</label><select id="p-trans-type"><option value="fade">Fade</option><option value="cut">Cut</option></select></div>
+            <div class="form-group" style="margin-bottom:0"><label>Duration (s)</label><input type="number" id="p-trans-dur" value="0.3" step="0.1" min="0"/></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="editor-panel-footer">
+      <button class="btn btn-ghost" onclick="closePresetEditor()">Cancel</button>
+      <button class="btn btn-primary" onclick="savePreset()">Save Preset</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT OVERLAY -->
+<div id="export-overlay">
+  <div class="export-modal">
+    <h3>Rendering Reel</h3>
+    <p>This may take a few minutes</p>
+    <div class="export-progress"><div class="export-progress-bar" id="export-bar"></div></div>
+    <div class="export-steps" id="export-steps">
+      <div class="export-step active" data-step="audio"><div class="export-step-dot"></div>Preparing audio</div>
+      <div class="export-step" data-step="render"><div class="export-step-dot"></div><span id="render-step-label">Rendering segments</span></div>
+      <div class="export-step" data-step="concat"><div class="export-step-dot"></div>Concatenating clips</div>
+      <div class="export-step" data-step="bgm"><div class="export-step-dot"></div>Mixing BGM</div>
+      <div class="export-step" data-step="export"><div class="export-step-dot"></div>Finalising</div>
+    </div>
+    <div id="export-download" style="display:none">
+      <button class="btn btn-primary w-full" id="download-btn">⬇ Download MP4</button>
+      <button class="btn btn-ghost w-full" style="margin-top:8px" onclick="document.getElementById('export-overlay').classList.remove('show')">← Back to Edit</button>
+    </div>
+    <button class="btn btn-ghost w-full" style="margin-top:8px" id="export-cancel" onclick="cancelExport()">Cancel</button>
+  </div>
+</div>
+
+<!-- REEL NAME MODAL -->
+<div id="name-modal">
+  <div class="name-modal-box">
+    <h3>Name your reel</h3>
+    <p>Give this reel a name so you can find it later</p>
+    <div class="form-group">
+      <input type="text" id="reel-name-input" placeholder="e.g. Kerala Story – April"/>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="document.getElementById('name-modal').classList.remove('show')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmReelName()">Create</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);align-items:center;justify-content:center;flex-direction:column;gap:0">
+  <div style="text-align:center;padding:48px 40px;background:var(--surface);border:1px solid var(--border);border-radius:16px;width:340px;max-width:90vw">
+    <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:4px">Reel<span style="color:var(--accent)">D</span></div>
+    <div style="font-size:11px;letter-spacing:1.5px;color:var(--muted2);text-transform:uppercase;margin-bottom:32px">VIDEO AUTOMATION</div>
+    <a href="/auth/google" id="google-signin-btn" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 20px;background:#fff;color:#3c4043;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;border:1.5px solid #dadce0;transition:box-shadow .15s" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.2)'" onmouseout="this.style.boxShadow='none'">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </a>
+    <div style="font-size:11px;color:var(--muted2);margin-top:20px">Sign in to create and manage your reels</div>
+  </div>
+</div>
+
+<!-- IMPORT PRESET MODAL -->
+<div id="import-preset-modal" style="display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)" onclick="closeImportPreset()"></div>
+  <div style="position:relative;z-index:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:420px;max-width:92vw">
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:6px">Import Preset</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px">Paste a share link or token from another user.</div>
+    <input id="import-preset-input" type="text" placeholder="https://… or bare token" style="width:100%;margin-bottom:14px" oninput="this.style.borderColor=''">
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeImportPreset()">Cancel</button>
+      <button class="btn btn-primary" onclick="doImportPreset()">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECHARGE MODAL -->
+<div class="billing-modal" id="recharge-modal">
+  <div class="billing-modal-box">
+    <h3>⚡ Recharge Credits</h3>
+    <p class="sub">1 credit = 1 second of reel exported</p>
+    <div class="form-group">
+      <label>Credits to buy <span style="color:var(--muted);font-size:11px">(min 100)</span></label>
+      <input type="number" id="recharge-credits-input" min="100" step="100" value="500"
+             oninput="updateRechargePreview()" style="width:100%"/>
+    </div>
+    <div class="price-preview">
+      <div>
+        <div class="pr-label">You pay</div>
+        <div class="pr-val" id="recharge-price-val">₹250</div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+          <span class="pr-orig" id="recharge-price-orig">₹500</span>
+          <span class="pr-off">50% off</span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="pr-label">Credits</div>
+        <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:600;color:var(--text)" id="recharge-credits-preview">500</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">≈ <span id="recharge-mins-preview">8m 20s</span> of reel</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeRechargeModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" id="recharge-pay-btn" onclick="doRecharge()">
+        Pay with Razorpay
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- INSUFFICIENT CREDITS MODAL -->
+<div class="billing-modal" id="insufficient-modal">
+  <div class="billing-modal-box">
+    <h3>⚠️ Insufficient Credits</h3>
+    <p class="sub">You need more credits to export this reel.</p>
+    <div style="background:var(--surface2);border-radius:10px;padding:16px;margin-bottom:20px;font-size:13px;line-height:2">
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Your balance</span><span style="font-family:'DM Mono',monospace" id="ins-balance">—</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Credits needed</span><span style="font-family:'DM Mono',monospace" id="ins-required">—</span></div>
+      <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:6px;margin-top:4px"><span style="color:var(--accent);font-weight:600">Shortfall</span><span style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:700" id="ins-shortfall">—</span></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('insufficient-modal').classList.remove('show')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="openRechargeFromInsufficient()">⚡ Top up &amp; Export</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRINTABLE INVOICE (hidden, shown only on print) -->
+<div id="print-invoice">
+  <h1>ReelD — Invoice</h1>
+  <div class="inv-meta" id="print-inv-meta"></div>
+  <table>
+    <thead><tr><th>Description</th><th>Credits</th><th>Amount</th></tr></thead>
+    <tbody id="print-inv-body"></tbody>
+  </table>
+  <div class="inv-total" id="print-inv-total"></div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
