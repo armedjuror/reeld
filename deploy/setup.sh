@@ -15,7 +15,7 @@ apt-get upgrade -y -qq
 
 echo "==> Installing system dependencies"
 apt-get install -y -qq \
-  python3.10 python3.10-venv python3.10-dev \
+  python3 python3-venv python3-dev \
   python3-pip \
   ffmpeg \
   nginx \
