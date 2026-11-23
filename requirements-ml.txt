@@ -1,0 +1,5 @@
+# Forced alignment for the audio stage (MMS via torchaudio). Optional:
+# without these, the audio stage only removes silences and keeps every take.
+torch>=2.3
+torchaudio>=2.3
+uroman>=1.3

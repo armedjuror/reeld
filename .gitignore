@@ -22,3 +22,7 @@ docs/
 /client_secret_172785962621-rckt515ik5cbef8oe6fqf114kdia0m2h.apps.googleusercontent.com.json
 /backend.md
 .DS_Store
+
+# suite media (local storage)
+suite_media/
+.pytest_cache/

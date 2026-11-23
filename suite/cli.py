@@ -32,7 +32,30 @@ def main(argv: list[str] | None = None) -> int:
     cx.add_argument("--automation")
     cx.add_argument("--manifest", action="store_true", help="print the manifest JSON instead")
 
+    sub.add_parser("demo", help="seed a demo series with episodes at every gate")
+    adv = sub.add_parser("advance", help="advance one episode now (real Claude)")
+    adv.add_argument("--episode", type=int, required=True)
+    sub.add_parser("tick", help="advance everything that can move, in the foreground")
+
     args = parser.parse_args(argv)
+
+    if args.cmd in ("demo", "advance", "tick"):
+        from . import pipeline
+        from .demo import seed
+
+        with session_scope() as s:
+            if args.cmd == "demo":
+                print(json.dumps(seed(s), indent=2))
+            elif args.cmd == "advance":
+                ep = s.get(Episode, args.episode)
+                if ep is None:
+                    print("episode not found", file=sys.stderr)
+                    return 1
+                print(pipeline.advance(s, ep).__dict__)
+            else:
+                for ep in pipeline.episodes_to_advance(s):
+                    print(pipeline.advance(s, ep).__dict__)
+        return 0
 
     with session_scope() as s:
         if args.cmd == "create-user":

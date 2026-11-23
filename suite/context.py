@@ -104,8 +104,12 @@ STAGE_RECIPES: dict[str, list[str]] = {
     "research": ["skill:script", "continuity"],
     "script": ["skill:script", "neighbours", "continuity", "learnings", "research"],
     "critic": ["skill:rubric", "learnings", "script"],
+    "revise": ["skill:script", "learnings", "research", "script"],
     "visuals": ["skill:visuals", "script"],
     "automation": ["skill:auto", "research", "script"],
+    "post_copy": ["research", "script"],
+    "continuity": ["script"],
+    "publish": ["script"],
 }
 
 
@@ -198,11 +202,13 @@ def resolve(
     *,
     automation: str | None = None,
     draft: str | None = None,
+    extra: list[tuple[str, str]] | None = None,
 ) -> ResolvedContext:
     """Build the context bundle for one stage of one episode.
 
     `draft` lets the critic loop pass a not-yet-saved script in place of the
     stored one. `automation` names the automation for the "automation" stage.
+    `extra` appends step-specific parts (critic verdict, line timings, links).
     """
     if stage not in STAGE_RECIPES:
         raise ValueError(f"unknown stage {stage!r}; expected one of {sorted(STAGE_RECIPES)}")
@@ -280,6 +286,10 @@ def resolve(
                 parts.append(part)
             elif item == "script" or (item == "research" and stage == "automation"):
                 missing.append(item)
+
+    for name, text in extra or []:
+        if text and text.strip():
+            parts.append(ContextPart(name, text))
 
     return ResolvedContext(
         stage=stage if not automation else f"automation:{automation}",

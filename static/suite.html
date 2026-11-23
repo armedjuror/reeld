@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>reeld studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #EDF0EA;
+  --panel: #FFFFFF;
+  --ink: #18221E;
+  --ink-2: #4C5A54;
+  --line: #CFD6CF;
+  --green: #1E6B47;
+  --green-soft: #DCEBE2;
+  --amber: #B9800F;
+  --amber-soft: #F6EBD2;
+  --rust: #A6382A;
+  --rust-soft: #F5DFDA;
+  --display: "Bricolage Grotesque", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --gutter: 16px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); }
+body { font: 16px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+a { color: var(--green); }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+main:focus, main:focus-visible { outline: none; }
+
+/* Top bar */
+.bar { display: flex; align-items: center; gap: 20px; padding: 14px var(--gutter); max-width: 1040px; margin: 0 auto; }
+.brand { font: 800 22px/1 var(--display); letter-spacing: -0.02em; text-decoration: none; color: var(--ink); }
+.brand span { color: var(--green); }
+nav { display: flex; gap: 4px; flex-wrap: wrap; }
+nav a { text-decoration: none; color: var(--ink-2); padding: 6px 10px; border-radius: 6px; }
+nav a[aria-current="page"] { color: var(--ink); background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
+main { max-width: 1040px; margin: 0 auto; padding: 8px var(--gutter) 80px; }
+
+h1, h2, h3 { font-family: var(--display); letter-spacing: -0.015em; margin: 0; }
+h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 800; line-height: 1.05; }
+h2 { font-size: 20px; font-weight: 700; margin: 36px 0 12px; }
+.muted { color: var(--ink-2); }
+.small { font-size: 14px; }
+
+/* Banner */
+.banner { border-radius: 8px; padding: 12px 14px; margin: 14px 0; background: var(--amber-soft); }
+.banner.error { background: var(--rust-soft); }
+
+/* Slate: Today / Tomorrow */
+.slate { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 18px; }
+.slate > section { background: var(--panel); padding: 14px 16px; min-height: 96px; }
+.slate h3 { font-size: 15px; font-weight: 700; color: var(--ink-2); margin-bottom: 8px; }
+.slate .day { font: 800 26px/1 var(--display); color: var(--ink); }
+.slate ul { list-style: none; margin: 10px 0 0; padding: 0; }
+.slate li { display: flex; gap: 10px; align-items: baseline; padding: 4px 0; }
+.slate .time { font-weight: 700; min-width: 3.2em; }
+.pill { display: inline-block; font-size: 13px; padding: 1px 8px; border-radius: 999px; background: var(--green-soft); color: var(--green); white-space: nowrap; }
+.pill.warn { background: var(--amber-soft); color: #7A5408; }
+.pill.bad { background: var(--rust-soft); color: var(--rust); }
+
+/* Cue stack */
+.cues { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+.cue { display: grid; grid-template-columns: 148px 1fr auto; gap: 16px; align-items: center; padding: 16px 4px; border-bottom: 1px solid var(--line); }
+.cue .verb { font: 800 28px/1 var(--display); letter-spacing: -0.02em; }
+.cue .what { min-width: 0; }
+.cue .what strong { display: block; overflow-wrap: anywhere; }
+.cue .meta { font-size: 14px; color: var(--ink-2); }
+.cue.overdue .verb { color: var(--rust); }
+.cue .go { white-space: nowrap; }
+.empty { padding: 28px 4px; border-bottom: 1px solid var(--line); }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 8px; padding: 10px 16px; cursor: pointer; text-decoration: none; font-weight: 700; background: var(--green); color: #fff; }
+.btn:hover { background: #17573A; }
+.btn.quiet { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.btn.quiet:hover { background: var(--panel); }
+.btn.danger { background: var(--rust); }
+.btn[disabled] { opacity: .55; cursor: default; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+/* Focused task screens */
+.head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-top: 10px; }
+.crumb { color: var(--ink-2); text-decoration: none; display: inline-block; margin-bottom: 6px; }
+.panel { background: var(--panel); border-radius: 10px; box-shadow: inset 0 0 0 1px var(--line); padding: 16px; margin-top: 16px; }
+.two { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: start; }
+textarea.script { width: 100%; min-height: 380px; border: 1px solid var(--line); border-radius: 8px; padding: 14px; font: 18px/1.6 var(--body); background: #fff; resize: vertical; }
+textarea.note, input.text { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: #fff; }
+.checks { list-style: none; padding: 0; margin: 0; }
+.checks li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.checks li:last-child { border-bottom: 0; }
+.mark { font-weight: 700; margin-right: 6px; }
+.mark.ok { color: var(--green); }
+.mark.no { color: var(--rust); }
+details summary { cursor: pointer; color: var(--ink-2); }
+pre.doc { white-space: pre-wrap; font: 15px/1.55 var(--body); margin: 8px 0 0; }
+
+/* Teleprompter */
+.prompter { background: var(--ink); color: #F3F6F1; border-radius: 12px; padding: 22px 22px 28px; margin-top: 16px; max-height: 62vh; overflow-y: auto; }
+.prompter p { font: 700 clamp(22px, 3.6vw, 32px)/1.45 var(--body); margin: 0 0 18px; }
+.prompter .cue-note { font-size: 16px; font-weight: 400; color: #9FB3A8; }
+.rec { display: flex; align-items: center; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
+.dot { width: 14px; height: 14px; border-radius: 50%; background: var(--line); }
+.dot.on { background: var(--rust); }
+@media (prefers-reduced-motion: no-preference) { .dot.on { animation: pulse 1.2s ease-in-out infinite; } }
+@keyframes pulse { 50% { opacity: .35; } }
+
+/* Audio lines */
+.lines { list-style: none; margin: 0; padding: 0; }
+.lines li { display: grid; grid-template-columns: 64px 1fr; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+.lines li.missing { color: var(--rust); }
+.lines .t { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+audio, video { width: 100%; }
+video { max-height: 70vh; background: #000; border-radius: 10px; }
+
+/* Calendar */
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.cal .dow { background: var(--paper); padding: 6px 8px; font-size: 13px; color: var(--ink-2); }
+.cal .cell { background: var(--panel); min-height: 92px; padding: 6px 8px; font-size: 13px; }
+.cal .cell.other { background: #F6F8F4; color: #8A968F; }
+.cal .cell.today { box-shadow: inset 0 0 0 2px var(--green); }
+.cal .n { font-weight: 700; }
+.ev { display: block; margin-top: 4px; padding: 2px 6px; border-radius: 5px; background: var(--green-soft); color: var(--ink); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.band { display: block; margin-top: 4px; padding: 2px 6px; border-radius: 5px; border: 1px dashed var(--green); color: var(--ink-2); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; }
+.unsched { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+/* Series board */
+.board { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 10px; overflow-x: auto; }
+.col h3 { font-size: 14px; color: var(--ink-2); margin-bottom: 6px; }
+.ep { display: block; background: var(--panel); border-radius: 8px; box-shadow: inset 0 0 0 1px var(--line); padding: 8px 10px; margin-bottom: 8px; text-decoration: none; color: var(--ink); font-size: 14px; }
+.ep.err { box-shadow: inset 0 0 0 2px var(--rust); }
+
+/* Diff */
+.diff { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; }
+.diff span { display: block; min-height: 1.5em; }
+.diff .add { background: #E1F1E6; }
+.diff .del { background: #F7E3DF; }
+
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.toast.show { opacity: 1; }
+.stack > * + * { margin-top: 12px; }
+label { font-weight: 700; display: block; margin-bottom: 4px; }
+
+@media (max-width: 720px) {
+  .bar { gap: 10px; }
+  nav a { padding: 6px 7px; font-size: 15px; }
+  .slate, .two { grid-template-columns: 1fr; }
+  .cue { grid-template-columns: 1fr auto; gap: 6px 12px; }
+  .cue .verb { grid-column: 1 / -1; font-size: 24px; }
+  .cal .cell { min-height: 64px; padding: 4px; }
+  .ev, .band { font-size: 11px; padding: 1px 3px; }
+  .board { grid-template-columns: repeat(5, 170px); }
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <a class="brand" href="#/">reeld<span>.</span></a>
+  <nav aria-label="Main">
+    <a href="#/" data-nav="home">Tasks</a>
+    <a href="#/calendar" data-nav="calendar">Calendar</a>
+    <a href="#/series" data-nav="series">Series</a>
+    <a href="#/settings" data-nav="settings">Settings</a>
+  </nav>
+</header>
+<main id="app" tabindex="-1"></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const API = "/api/suite";
+const $app = document.getElementById("app");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtTime = iso => iso ? new Date(iso).toLocaleString([], {weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"}) : "";
+const secs = t => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2600);
+}
+async function api(path, opts = {}) {
+  const init = {...opts, headers: {...(opts.body && !(opts.body instanceof FormData) ? {"Content-Type": "application/json"} : {}), ...(opts.headers || {})}};
+  if (init.body && !(init.body instanceof FormData) && typeof init.body !== "string") init.body = JSON.stringify(init.body);
+  const r = await fetch(API + path, init);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.detail || `Request failed (${r.status})`);
+  return data;
+}
+function setNav(name) {
+  document.querySelectorAll("nav a").forEach(a => a.dataset.nav === name ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+}
+const STATE_LABEL = {
+  planned: "Planned", scripting: "Writing script", script_review: "Script ready", awaiting_recording: "To record",
+  audio_processing: "Cleaning audio", audio_review: "Audio ready", editing: "Making video", video_review: "Video ready",
+  automations: "Running automations", publishing: "Publishing", live: "Live", failed: "Failed"
+};
+const VERB = {
+  approve_script: "Approve", record: "Record", check_audio: "Check", approve_video: "Watch", publish: "Post",
+  review_proposal: "Review", read_insights: "Read", fix_failure: "Fix"
+};
+function taskHref(t) {
+  switch (t.type) {
+    case "approve_script": return `#/script/${t.episode_id}`;
+    case "record": return `#/record/${(t.group && t.group.length > 1) ? "batch" : t.episode_id}`;
+    case "check_audio": return `#/audio/${t.episode_id}`;
+    case "approve_video": return `#/video/${t.episode_id}`;
+    case "publish": return `#/publish/${t.episode_id}`;
+    case "review_proposal": return `#/proposal/${t.payload.proposal_id}`;
+    case "read_insights": return `#/insights/${t.id}`;
+    case "fix_failure": return `#/episode/${t.episode_id}`;
+  }
+  return "#/";
+}
+let lastHome = null;
+
+// ─── Home ────────────────────────────────────────────────────────────────────
+async function viewHome() {
+  setNav("home");
+  const h = await api("/home"); lastHome = h;
+  const dayList = items => items.length ? `<ul>${items.map(e => `
+      <li><span class="time">${esc(e.time)}</span>
+      <a href="#/episode/${e.episode_id}">${esc(e.series)} · Ep ${e.number}</a>
+      ${e.ready ? `<span class="pill">Ready</span>` : e.needs.length ? `<span class="pill warn">${e.needs.length} to do</span>` : `<span class="pill">${esc(STATE_LABEL[e.state] || e.state)}</span>`}</li>`).join("")}</ul>`
+    : `<p class="muted small">Nothing scheduled.</p>`;
+  const tomorrowDate = new Date(h.date); tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const dayName = d => d.toLocaleDateString([], {weekday: "long"});
+  const total = h.tasks.reduce((a, t) => a + (t.estimate_minutes || 0), 0);
+  $app.innerHTML = `
+    <div class="head"><div><h1>${h.tasks.length ? `${h.tasks.length} thing${h.tasks.length > 1 ? "s" : ""} need you` : "Nothing needs you"}</h1>
+      <p class="muted">${h.tasks.length ? `About ${total} minutes in all.` : h.series_count ? "The pipeline is working; new tasks appear here." : "Design a series with Claude and push it here to get started."}</p></div></div>
+    ${h.paused_until ? `<div class="banner">Claude hit its usage limit. Paused until ${esc(fmtTime(h.paused_until))}; work resumes automatically.</div>` : ""}
+    <div class="slate">
+      <section><h3>Today</h3><div class="day">${esc(dayName(new Date(h.date)))}</div>${dayList(h.today)}</section>
+      <section><h3>Tomorrow</h3><div class="day">${esc(dayName(tomorrowDate))}</div>${dayList(h.tomorrow)}</section>
+    </div>
+    <h2>Your tasks</h2>
+    <ol class="cues">${h.tasks.length ? h.tasks.map(t => `
+      <li class="cue ${t.overdue ? "overdue" : ""}">
+        <span class="verb">${esc(VERB[t.type] || "Do")}</span>
+        <span class="what"><strong>${esc(t.type === "review_proposal" ? `Change the ${t.payload.target || "skill"}?` : (t.title.replace(/^[^·]+· /, "") || t.title))}</strong>
+          <span class="meta">${[t.series, t.detail, t.due_at ? (t.overdue ? "Overdue since " : "Due ") + fmtTime(t.due_at) : "", t.estimate_minutes ? `~${t.estimate_minutes} min` : ""].filter(Boolean).map(esc).join(" — ")}</span></span>
+        <a class="btn go" href="${taskHref(t)}">${esc(t.type === "record" && t.group && t.group.length > 1 ? "Start recording" : "Open")}</a>
+      </li>`).join("") : `<li class="empty muted">All clear.</li>`}</ol>
+    ${h.working.length ? `<h2>In the works</h2><p class="muted small">${h.working.map(w => `<a href="#/episode/${w.episode_id}">${esc(w.series)} Ep ${w.number}</a>: ${esc(STATE_LABEL[w.state] || w.state)}`).join("<br>")}</p>` : ""}`;
+}
+
+// ─── Script approval ─────────────────────────────────────────────────────────
+async function viewScript(id) {
+  setNav("home");
+  const ep = await api(`/episodes/${id}`);
+  const c = ep.critic || {results: []};
+  $app.innerHTML = `
+    <a class="crumb" href="#/">Back to tasks</a>
+    <div class="head"><div><h1>Ep ${ep.number}: ${esc(ep.title)}</h1><p class="muted">${esc(ep.series)} — hook: ${esc(ep.hook)}</p></div></div>
+    ${ep.state !== "script_review" ? `<div class="banner">This script isn't waiting for approval (${esc(STATE_LABEL[ep.state] || ep.state)}).</div>` : ""}
+    <div class="two">
+      <div class="panel"><label for="script">Script</label>
+        <textarea id="script" class="script" spellcheck="false">${esc(ep.script || "")}</textarea>
+        <div class="actions"><button class="btn" id="approve">Approve script</button></div>
+      </div>
+      <div class="stack">
+        <div class="panel"><h3>Rubric check</h3>
+          <p class="small muted">${esc(c.summary || "")}</p>
+          <ul class="checks">${(c.results || []).map(r => `<li><span class="mark ${r.pass ? "ok" : "no"}">${r.pass ? "Pass" : "Flag"}</span>${esc(r.criterion)}${!r.pass && r.fix ? `<div class="small muted">${esc(r.fix)}</div>` : ""}</li>`).join("") || "<li class='muted'>No rubric results.</li>"}</ul>
+        </div>
+        <div class="panel"><label for="note">Ask for changes</label>
+          <textarea id="note" class="note" rows="3" placeholder="e.g. Make the hook a question; cut the second example"></textarea>
+          <div class="actions"><button class="btn quiet" id="revise">Revise with this note</button></div>
+        </div>
+        ${ep.research ? `<div class="panel"><details><summary>Research note</summary><pre class="doc">${esc(ep.research)}</pre></details></div>` : ""}
+      </div>
+    </div>`;
+  document.getElementById("approve").onclick = async e => {
+    e.target.disabled = true;
+    try { await api(`/episodes/${id}/approve-script`, {method: "POST", body: {content: document.getElementById("script").value}}); toast("Script approved"); location.hash = "#/"; }
+    catch (err) { toast(err.message); e.target.disabled = false; }
+  };
+  document.getElementById("revise").onclick = async e => {
+    const note = document.getElementById("note").value.trim(); if (!note) return toast("Write what to change first");
+    e.target.disabled = true; e.target.textContent = "Revising…";
+    try { const r = await api(`/episodes/${id}/script-feedback`, {method: "POST", body: {note}}); toast(r.error ? r.error : r.paused_until ? "Paused: usage limit" : "Script revised"); viewScript(id); }
+    catch (err) { toast(err.message); e.target.disabled = false; e.target.textContent = "Revise with this note"; }
+  };
+}
+
+// ─── Recording (teleprompter, batch) ─────────────────────────────────────────
+async function viewRecord(which) {
+  setNav("home");
+  let ids;
+  if (which === "batch") {
+    const series = await api("/series");
+    ids = series.flatMap(s => s.episodes).filter(e => e.state === "awaiting_recording").map(e => e.id);
+  } else ids = [Number(which)];
+  if (!ids.length) { $app.innerHTML = `<a class="crumb" href="#/">Back to tasks</a><h1>Nothing to record</h1>`; return; }
+  let i = 0;
+  const run = async () => {
+    const ep = await api(`/episodes/${ids[i]}`);
+    const lines = (ep.script || "").split("\n").filter(l => l.trim());
+    $app.innerHTML = `
+      <a class="crumb" href="#/">Back to tasks</a>
+      <div class="head"><div><h1>Ep ${ep.number}: ${esc(ep.title)}</h1>
+        <p class="muted">${ids.length > 1 ? `Episode ${i + 1} of ${ids.length}. ` : ""}Read line by line. If you slip, pause and read the line again; the last take wins.</p></div></div>
+      <div class="prompter" id="prompter">${lines.map(l => /^\[.*\]$/.test(l.trim()) ? `<p class="cue-note">${esc(l)}</p>` : `<p>${esc(l)}</p>`).join("")}</div>
+      <div class="rec"><span class="dot" id="dot"></span><span id="clock">0:00</span>
+        <button class="btn" id="go">Start recording</button>
+        <label class="btn quiet" style="font-weight:700">Upload a file<input type="file" id="file" accept="audio/*,video/*" hidden></label>
+        <span class="muted small" id="status"></span></div>`;
+    let rec = null, chunks = [], t0 = 0, tick = null;
+    const upload = async blob => {
+      const fd = new FormData(); fd.append("file", blob, blob.name || "take.webm");
+      document.getElementById("status").textContent = "Uploading…";
+      await api(`/episodes/${ids[i]}/recording`, {method: "POST", body: fd});
+      toast("Recording saved; cleaning audio");
+      i += 1; if (i < ids.length) run(); else location.hash = "#/";
+    };
+    document.getElementById("file").onchange = e => e.target.files[0] && upload(e.target.files[0]).catch(err => toast(err.message));
+    document.getElementById("go").onclick = async e => {
+      const btn = e.target;
+      if (!rec) {
+        let stream;
+        try { stream = await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: false, noiseSuppression: false, autoGainControl: false}}); }
+        catch { return toast("Microphone access was blocked; allow it in the browser to record"); }
+        rec = new MediaRecorder(stream); chunks = [];
+        rec.ondataavailable = ev => chunks.push(ev.data);
+        rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); upload(new Blob(chunks, {type: rec.mimeType})).catch(err => toast(err.message)); };
+        rec.start(); t0 = Date.now(); document.getElementById("dot").classList.add("on");
+        tick = setInterval(() => document.getElementById("clock").textContent = secs((Date.now() - t0) / 1000), 500);
+        btn.textContent = "Stop and save";
+      } else {
+        clearInterval(tick); document.getElementById("dot").classList.remove("on"); btn.disabled = true; rec.stop();
+      }
+    };
+  };
+  run();
+}
+
+// ─── Audio check ─────────────────────────────────────────────────────────────
+async function viewAudio(id) {
+  setNav("home");
+  const ep = await api(`/episodes/${id}`);
+  const al = ep.alignment || {lines: [], missing_lines: []};
+  const scriptLines = (ep.script || "").split("\n").filter(l => l.trim() && !/^\[.*\]$/.test(l.trim()));
+  const cuts = [];
+  $app.innerHTML = `
+    <a class="crumb" href="#/">Back to tasks</a>
+    <div class="head"><div><h1>Check audio: Ep ${ep.number}</h1>
+      <p class="muted">${al.raw_duration ?? "?"}s recorded, ${al.clean_duration ?? "?"}s kept. ${al.method === "silence-only" ? "Silences removed only (no speech model on this machine), so check retakes yourself." : "Last clean take of each line kept."}</p></div></div>
+    ${al.missing_lines && al.missing_lines.length ? `<div class="banner error">${al.missing_lines.length} line(s) weren't found in the recording: ${al.missing_lines.map(n => esc(scriptLines[n] || `line ${n + 1}`)).join("; ")}. Re-record, or approve without them.</div>` : ""}
+    <div class="panel"><audio id="player" controls preload="auto" src="${esc(ep.audio_url || "")}"></audio>
+      <div class="actions"><button class="btn quiet" id="cutStart">Mark cut start</button><button class="btn quiet" id="cutEnd" disabled>Mark cut end</button>
+      <span class="muted small" id="cutList">No extra cuts.</span></div></div>
+    <div class="panel"><ul class="lines">${(al.lines || []).map(l => `<li data-t="${l.start}"><span class="t">${secs(l.start)}</span><span>${esc(l.text)}</span></li>`).join("")}</ul></div>
+    <div class="actions"><button class="btn" id="approve">Approve audio</button><a class="btn quiet" href="#/record/${id}">Record again</a></div>`;
+  const p = document.getElementById("player");
+  document.querySelectorAll(".lines li").forEach(li => li.onclick = () => { p.currentTime = Number(li.dataset.t); p.play(); });
+  let start = null;
+  const show = () => document.getElementById("cutList").textContent = cuts.length ? cuts.map(([a, b]) => `${a.toFixed(1)}–${b.toFixed(1)}s`).join(", ") : "No extra cuts.";
+  document.getElementById("cutStart").onclick = () => { start = p.currentTime; document.getElementById("cutEnd").disabled = false; toast(`Cut starts at ${start.toFixed(1)}s`); };
+  document.getElementById("cutEnd").onclick = () => { if (start === null) return; const end = p.currentTime; if (end > start) cuts.push([start, end]); start = null; document.getElementById("cutEnd").disabled = true; show(); };
+  document.getElementById("approve").onclick = async e => {
+    e.target.disabled = true;
+    try { await api(`/episodes/${id}/approve-audio`, {method: "POST", body: {cuts}}); toast("Audio approved; making the video"); location.hash = "#/"; }
+    catch (err) { toast(err.message); e.target.disabled = false; }
+  };
+}
+
+// ─── Video approval ──────────────────────────────────────────────────────────
+async function viewVideo(id) {
+  setNav("home");
+  const ep = await api(`/episodes/${id}`);
+  $app.innerHTML = `
+    <a class="crumb" href="#/">Back to tasks</a>
+    <div class="head"><div><h1>Watch Ep ${ep.number}: ${esc(ep.title)}</h1><p class="muted">${esc(ep.series)}</p></div></div>
+    <div class="two"><div class="panel"><video controls playsinline src="${esc(ep.video_url || "")}"></video></div>
+      <div class="panel stack"><p>Approving runs this series' automations, writes the caption and DM, and then publishes.</p>
+        <button class="btn" id="approve">Approve video</button>
+        <label for="note">Or redo the visuals</label><textarea id="note" class="note" rows="3" placeholder="e.g. Bigger text on the opening scene"></textarea>
+        <button class="btn quiet" id="redo">Redo visuals</button></div></div>`;
+  document.getElementById("approve").onclick = async e => { e.target.disabled = true;
+    try { await api(`/episodes/${id}/approve-video`, {method: "POST"}); toast("Video approved"); location.hash = "#/"; } catch (err) { toast(err.message); e.target.disabled = false; } };
+  document.getElementById("redo").onclick = async e => { e.target.disabled = true;
+    try { await api(`/episodes/${id}/redo-video`, {method: "POST", body: {note: document.getElementById("note").value}}); toast("Redoing the visuals"); location.hash = "#/"; } catch (err) { toast(err.message); e.target.disabled = false; } };
+}
+
+// ─── Manual publish ──────────────────────────────────────────────────────────
+async function viewPublish(id) {
+  setNav("home");
+  const ep = await api(`/episodes/${id}`);
+  const h = lastHome || await api("/home");
+  const t = h.tasks.find(x => x.type === "publish" && x.episode_id === Number(id));
+  const pl = (t && t.payload) || {};
+  $app.innerHTML = `
+    <a class="crumb" href="#/">Back to tasks</a>
+    <div class="head"><div><h1>Post Ep ${ep.number} yourself</h1><p class="muted">${esc(pl.summary || "")}</p></div></div>
+    <div class="two"><div class="panel"><video controls playsinline src="${esc(ep.video_url || "")}"></video>
+      <div class="actions"><a class="btn quiet" href="${esc(ep.video_url || "#")}" download>Download video</a></div></div>
+      <div class="panel stack">
+        <div><label>Caption</label><pre class="doc" id="cap">${esc(pl.caption || "")}</pre><button class="btn quiet" data-copy="cap">Copy caption</button></div>
+        <div><label>Auto-DM for "${esc(pl.keyword || ep.keyword)}"</label><pre class="doc" id="dm">${esc(pl.dm_message || "")}</pre><button class="btn quiet" data-copy="dm">Copy message</button></div>
+        ${pl.scheduled_for ? `<p>Planned for ${esc(fmtTime(pl.scheduled_for))}.</p>` : ""}
+        <label for="link">Reel link (optional)</label><input id="link" class="text" placeholder="https://www.instagram.com/reel/…">
+        <button class="btn" id="done">Mark as published</button></div></div>`;
+  document.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => navigator.clipboard.writeText(document.getElementById(b.dataset.copy).textContent).then(() => toast("Copied")));
+  document.getElementById("done").onclick = async e => { e.target.disabled = true;
+    try { await api(`/episodes/${id}/mark-published`, {method: "POST", body: {permalink: document.getElementById("link").value || null}}); toast("Marked as published"); location.hash = "#/"; } catch (err) { toast(err.message); e.target.disabled = false; } };
+}
+
+// ─── Episode (overview, failures) ────────────────────────────────────────────
+async function viewEpisode(id) {
+  setNav("series");
+  const ep = await api(`/episodes/${id}`);
+  const err = ep.meta && ep.meta.error;
+  const slot = ep.slot;
+  $app.innerHTML = `
+    <a class="crumb" href="#/series">Back to series</a>
+    <div class="head"><div><h1>Ep ${ep.number}: ${esc(ep.title)}</h1><p class="muted">${esc(ep.series)} — ${esc(STATE_LABEL[ep.state] || ep.state)} — keyword ${esc(ep.keyword)}</p></div></div>
+    ${err ? `<div class="banner error"><strong>A step failed.</strong> ${esc(err)}<div class="actions"><button class="btn" id="retry">Try again</button></div></div>` : ""}
+    <div class="two">
+      <div class="stack">
+        ${ep.video_url ? `<div class="panel"><video controls playsinline src="${esc(ep.video_url)}"></video></div>` : ""}
+        ${ep.script ? `<div class="panel"><details ${ep.video_url ? "" : "open"}><summary>Script</summary><pre class="doc">${esc(ep.script)}</pre></details></div>` : ""}
+        ${ep.post_copy ? `<div class="panel"><details><summary>Post copy</summary><pre class="doc">${esc(ep.post_copy.caption)}\n\nDM: ${esc(ep.post_copy.dm_message || "")}</pre></details></div>` : ""}
+        ${Object.entries(ep.automations || {}).map(([k, v]) => `<div class="panel"><details><summary>${esc(k)}</summary><pre class="doc">${esc(v)}</pre></details></div>`).join("")}
+      </div>
+      <div class="stack">
+        <div class="panel"><h3>Publish slot</h3>
+          <form id="slot" class="stack small">
+            <select id="kind" aria-label="Slot type">${["precise", "week", "month", "after", "unscheduled"].map(k => `<option value="${k}" ${slot.kind === k ? "selected" : ""}>${{precise: "Exact date", week: "Some day that week", month: "Some day that month", after: "After another episode", unscheduled: "Not scheduled"}[k]}</option>`).join("")}</select>
+            <input type="date" id="date" class="text" value="${esc(slot.date || "")}" aria-label="Date">
+            <input type="time" id="time" class="text" value="${esc(slot.time || "")}" aria-label="Time">
+            <input type="number" id="after" class="text" min="1" value="${esc(slot.after || "")}" placeholder="Episode number" aria-label="After episode">
+            <button class="btn quiet" type="submit">Save slot</button></form></div>
+        ${ep.metrics ? `<div class="panel"><h3>Latest stats</h3><p class="small">${Object.entries(ep.metrics).filter(([k]) => k !== "captured_at").map(([k, v]) => `${esc(k.replace(/_/g, " "))}: <strong>${esc(v)}</strong>`).join("<br>")}</p></div>` : ""}
+        <div class="panel"><h3>Steps</h3><ul class="checks small">${ep.runs.map(r => `<li><span class="mark ${r.status === "succeeded" ? "ok" : r.status === "failed" ? "no" : ""}">${esc(r.status)}</span>${esc(r.stage)} / ${esc(r.step)}${r.cost_usd ? ` <span class="muted">$${r.cost_usd.toFixed(3)}</span>` : ""}${r.error && r.status !== "succeeded" ? `<div class="muted">${esc(r.error.slice(0, 240))}</div>` : ""}</li>`).join("") || "<li class='muted'>No steps yet.</li>"}</ul></div>
+      </div></div>`;
+  if (err) document.getElementById("retry").onclick = async () => { await api(`/episodes/${id}/retry`, {method: "POST"}); toast("Trying again"); viewEpisode(id); };
+  document.getElementById("slot").onsubmit = async e => {
+    e.preventDefault();
+    const body = {kind: document.getElementById("kind").value, date: document.getElementById("date").value || null,
+      time: document.getElementById("time").value || null, after_episode: Number(document.getElementById("after").value) || null};
+    try { await api(`/episodes/${id}/slot`, {method: "POST", body}); toast("Slot saved"); } catch (err2) { toast(err2.message); }
+  };
+}
+
+// ─── Calendar ────────────────────────────────────────────────────────────────
+let calMonth = null;
+async function viewCalendar() {
+  setNav("calendar");
+  const base = calMonth || new Date(); base.setDate(1);
+  const gridStart = new Date(base); gridStart.setDate(1 - ((base.getDay() + 6) % 7));
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const data = await api(`/calendar?start=${iso(gridStart)}&days=42`);
+  const today = iso(new Date());
+  const cells = [];
+  for (let k = 0; k < 42; k++) {
+    const d = new Date(gridStart); d.setDate(gridStart.getDate() + k);
+    const ds = iso(d);
+    const precise = data.items.filter(e => e.kind === "precise" && e.start === ds);
+    const bands = data.items.filter(e => (e.kind === "week" || e.kind === "month") && e.start <= ds && e.end >= ds && (ds === e.start || (e.kind === "month" && d.getDay() === 1)));
+    cells.push(`<div class="cell ${d.getMonth() !== base.getMonth() ? "other" : ""} ${ds === today ? "today" : ""}"><span class="n">${d.getDate()}</span>
+      ${precise.map(e => `<a class="ev" href="#/episode/${e.episode_id}" title="${esc(e.series)} Ep ${e.number}: ${esc(e.title)}">${e.time ? esc(e.time) + " " : ""}${esc(e.series)} ${e.number}</a>`).join("")}
+      ${bands.map(e => `<a class="band" href="#/episode/${e.episode_id}" title="Sometime this ${e.kind}">${esc(e.series)} ${e.number} (this ${e.kind})</a>`).join("")}</div>`);
+  }
+  const loose = data.items.filter(e => e.start === null);
+  $app.innerHTML = `
+    <div class="head"><h1>${base.toLocaleDateString([], {month: "long", year: "numeric"})}</h1>
+      <div class="actions" style="margin:0"><button class="btn quiet" id="prev">Previous</button><button class="btn quiet" id="next">Next</button></div></div>
+    <p class="muted small">Exact dates sit on their day. Dashed bands are episodes planned for sometime that week or month; open one to set an exact date.</p>
+    <div class="cal">${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => `<div class="dow">${d}</div>`).join("")}${cells.join("")}</div>
+    ${loose.length ? `<h2>Not on the calendar yet</h2><div class="unsched">${loose.map(e => `<a class="band" href="#/episode/${e.episode_id}">${esc(e.series)} ${e.number}${e.after_episode ? ` (after Ep ${e.after_episode})` : ""}</a>`).join("")}</div>` : ""}`;
+  document.getElementById("prev").onclick = () => { calMonth = new Date(base); calMonth.setMonth(base.getMonth() - 1); viewCalendar(); };
+  document.getElementById("next").onclick = () => { calMonth = new Date(base); calMonth.setMonth(base.getMonth() + 1); viewCalendar(); };
+}
+
+// ─── Series board ────────────────────────────────────────────────────────────
+const COLUMNS = [["Script", ["planned", "scripting", "script_review"]], ["Record", ["awaiting_recording", "audio_processing", "audio_review"]],
+  ["Edit", ["editing", "video_review"]], ["Publish", ["automations", "publishing"]], ["Live", ["live"]]];
+async function viewSeries() {
+  setNav("series");
+  const list = await api("/series");
+  $app.innerHTML = `<div class="head"><h1>Series</h1></div>${list.length ? "" : `<p class="muted">No series yet. In a Claude chat with the reeld tools, design one with the series package skill and save it.</p>`}` +
+    list.map(s => `<h2>${esc(s.name)} <span class="pill ${s.status === "active" ? "" : "warn"}">${esc(s.status)}</span></h2>
+      <div class="actions" style="margin-top:0">${s.status !== "active" ? `<button class="btn" data-activate="${esc(s.slug)}">Start the pipeline</button>` : `<button class="btn quiet" data-pause="${esc(s.slug)}">Pause</button>`}</div>
+      <div class="board" style="margin-top:12px">${COLUMNS.map(([name, states]) => `<div class="col"><h3>${name}</h3>${s.episodes.filter(e => states.includes(e.state)).map(e => `<a class="ep ${e.error ? "err" : ""}" href="#/episode/${e.id}"><strong>${e.number}.</strong> ${esc(e.title)}<br><span class="muted small">${esc(STATE_LABEL[e.state])}</span></a>`).join("")}</div>`).join("")}</div>`).join("");
+  document.querySelectorAll("[data-activate],[data-pause]").forEach(b => b.onclick = async () => {
+    const slug = b.dataset.activate || b.dataset.pause;
+    await api(`/series/${slug}/status`, {method: "POST", body: {status: b.dataset.activate ? "active" : "paused"}});
+    toast(b.dataset.activate ? "Pipeline started" : "Series paused"); viewSeries();
+  });
+}
+
+// ─── Proposals and insights ──────────────────────────────────────────────────
+async function viewProposal(pid) {
+  setNav("home");
+  const p = await api(`/proposals/${pid}`);
+  $app.innerHTML = `
+    <a class="crumb" href="#/">Back to tasks</a>
+    <div class="head"><div><h1>Change the ${esc(p.label)}?</h1><p class="muted">${esc(p.series || "")} — suggested from ${p.source === "distil" ? "your script edits" : "reel stats"}</p></div></div>
+    ${p.stale ? `<div class="banner">This file changed since the suggestion was made; accepting replaces it with the version below.</div>` : ""}
+    <div class="panel"><h3>Why</h3><p>${esc(p.rationale)}</p></div>
+    <div class="panel"><h3>Changes</h3><div class="diff">${p.diff.slice(2).map(l => `<span class="${l.startsWith("+") ? "add" : l.startsWith("-") ? "del" : ""}">${esc(l)}</span>`).join("")}</div></div>
+    <div class="actions">${p.status === "pending" ? `<button class="btn" id="yes">Accept change</button><button class="btn quiet" id="no">Reject</button>` : `<span class="pill">${esc(p.status)}</span>`}</div>`;
+  if (p.status === "pending") {
+    document.getElementById("yes").onclick = async () => { await api(`/proposals/${pid}/accept`, {method: "POST", body: {}}); toast("Change accepted"); location.hash = "#/"; };
+    document.getElementById("no").onclick = async () => { await api(`/proposals/${pid}/reject`, {method: "POST"}); toast("Change rejected"); location.hash = "#/"; };
+  }
+}
+async function viewInsights(taskId) {
+  setNav("home");
+  const h = await api("/home");
+  $app.innerHTML = `<a class="crumb" href="#/">Back to tasks</a><div class="panel"><pre class="doc">${esc(h.digest || "No insights yet.")}</pre></div>
+    <div class="actions"><button class="btn" id="done">Done reading</button></div>`;
+  document.getElementById("done").onclick = async () => { await api(`/tasks/${taskId}/dismiss`, {method: "POST"}); location.hash = "#/"; };
+}
+
+// ─── Settings ────────────────────────────────────────────────────────────────
+async function viewSettings() {
+  setNav("settings");
+  const [prof, integ, lib] = await Promise.all([api("/profile"), api("/integrations"), api("/library")]);
+  $app.innerHTML = `
+    <div class="head"><h1>Settings</h1></div>
+    <h2>Your voice</h2><p class="muted small">How you narrate, your tone, phrases to avoid, brand defaults. Use <code>## Section</code> headings; a series can override any section.</p>
+    <textarea id="voice" class="script" style="min-height:260px">${esc(prof.content)}</textarea>
+    <div class="actions"><button class="btn" id="saveVoice">Save voice</button></div>
+    <h2>Music and sound library</h2>
+    <p class="small">${lib.length ? lib.map(a => `${esc(a.kind.toUpperCase() === "BGM" ? "Music" : "Sound")}: ${esc(a.name || a.id)}${a.series ? ` (${esc(a.series)})` : ""}`).join("<br>") : "No tracks yet. Without music, reels use the voice only."}</p>
+    <form id="lib" class="actions"><input type="file" id="track" accept="audio/*" aria-label="Track"><input class="text" id="libSeries" placeholder="Series slug (optional)" style="max-width:220px"><button class="btn quiet" type="submit">Add music</button></form>
+    <h2>Instagram stats</h2><p class="muted small">A long-lived token from your Meta developer app (Instagram API with Instagram Login). It refreshes itself before it expires.</p>
+    <form id="meta" class="actions"><input class="text" id="token" placeholder="${esc(integ.meta.access_token || "Access token")}" style="max-width:420px"><button class="btn quiet" type="submit">Save token</button></form>
+    <h2>Publishing</h2><p class="muted small">With SuperProfile connected in Claude Code (server name below), reels are scheduled and their keyword DMs set up automatically. Otherwise you get a task to post them yourself.</p>
+    <form id="sp" class="actions"><label style="font-weight:400"><input type="checkbox" id="spOn" ${integ.superprofile.enabled ? "checked" : ""}> Publish through SuperProfile</label>
+      <input class="text" id="spName" value="${esc(integ.superprofile.server_name || "superprofile")}" style="max-width:200px" aria-label="Server name"><button class="btn quiet" type="submit">Save</button></form>`;
+  document.getElementById("saveVoice").onclick = async () => { const r = await api("/profile", {method: "PUT", body: {content: document.getElementById("voice").value}}); toast(r.changed ? `Saved as version ${r.version}` : "No changes"); };
+  document.getElementById("lib").onsubmit = async e => { e.preventDefault(); const f = document.getElementById("track").files[0]; if (!f) return toast("Choose a file first");
+    const fd = new FormData(); fd.append("file", f); const s = document.getElementById("libSeries").value.trim();
+    await api(`/library?kind=bgm${s ? `&series=${encodeURIComponent(s)}` : ""}`, {method: "POST", body: fd}); toast("Music added"); viewSettings(); };
+  document.getElementById("meta").onsubmit = async e => { e.preventDefault(); const t = document.getElementById("token").value.trim(); if (!t) return;
+    await api("/integrations/meta", {method: "PUT", body: {data: {access_token: t}}}); toast("Token saved"); viewSettings(); };
+  document.getElementById("sp").onsubmit = async e => { e.preventDefault();
+    await api("/integrations/superprofile", {method: "PUT", body: {data: {enabled: document.getElementById("spOn").checked, server_name: document.getElementById("spName").value.trim()}}}); toast("Publishing settings saved"); };
+}
+
+// ─── Router ──────────────────────────────────────────────────────────────────
+const routes = [
+  [/^#?\/?$/, viewHome], [/^#\/script\/(\d+)$/, viewScript], [/^#\/record\/(\w+)$/, viewRecord],
+  [/^#\/audio\/(\d+)$/, viewAudio], [/^#\/video\/(\d+)$/, viewVideo], [/^#\/publish\/(\d+)$/, viewPublish],
+  [/^#\/episode\/(\d+)$/, viewEpisode], [/^#\/calendar$/, viewCalendar], [/^#\/series$/, viewSeries],
+  [/^#\/proposal\/(\d+)$/, viewProposal], [/^#\/insights\/(\d+)$/, viewInsights], [/^#\/settings$/, viewSettings],
+];
+async function route() {
+  const h = location.hash || "#/";
+  for (const [re, fn] of routes) {
+    const m = h.match(re);
+    if (m) {
+      try { await fn(...m.slice(1)); } catch (err) { $app.innerHTML = `<div class="banner error">${esc(err.message)}</div>`; }
+      $app.focus({preventScroll: true}); window.scrollTo(0, 0); return;
+    }
+  }
+  location.hash = "#/";
+}
+window.addEventListener("hashchange", route);
+fetch(API + "/open", {method: "POST"}).catch(() => {});
+route();
+</script>
+</body>
+</html>

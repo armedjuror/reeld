@@ -25,6 +25,17 @@ app.add_middleware(
     max_age=60 * 60 * 24 * 30,  # 30 days
 )
 
+# ─── Suite (series → episode pipeline, see SPEC.md) ──────────────────────────
+from suite.api import router as suite_router  # noqa: E402
+
+app.include_router(suite_router)
+
+
+@app.get("/studio")
+def studio_ui():
+    return FileResponse("static/suite.html")
+
+
 TEMP_DIR   = "temp"
 OUTPUT_DIR = "outputs"
 REEL_DIR   = "reel_assets"

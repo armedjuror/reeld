@@ -65,6 +65,9 @@ class DocKind(str, enum.Enum):
     SCRIPT = "script"  # episode
     SCENE_PLAN = "scene_plan"  # episode
     AUTOMATION_OUTPUT = "automation_output"  # episode, key = automation name
+    CRITIC = "critic"  # episode: latest critic verdict (JSON)
+    ALIGNMENT = "alignment"  # episode: line timings of the clean audio (JSON)
+    DIGEST = "digest"  # user: daily insights digest
 
 
 class VersionSource(str, enum.Enum):
@@ -98,6 +101,7 @@ class EpisodeState(str, enum.Enum):
     AUDIO_PROCESSING = "audio_processing"
     AUDIO_REVIEW = "audio_review"
     EDITING = "editing"
+    VIDEO_REVIEW = "video_review"
     AUTOMATIONS = "automations"
     PUBLISHING = "publishing"
     LIVE = "live"
@@ -120,6 +124,7 @@ class TaskType(str, enum.Enum):
     REVIEW_PROPOSAL = "review_proposal"
     READ_INSIGHTS = "read_insights"
     FIX_FAILURE = "fix_failure"
+    PUBLISH = "publish"  # manual publishing when SuperProfile isn't set up
 
 
 class TaskStatus(str, enum.Enum):
@@ -266,6 +271,9 @@ class Episode(Base):
     state: Mapped[EpisodeState] = mapped_column(
         _enum(EpisodeState, "episode_state"), default=EpisodeState.PLANNED
     )
+    # Publishing/insight bookkeeping: superprofile ids, instagram media id,
+    # published_at, approvals count, last error, etc.
+    meta: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, onupdate=utcnow
@@ -299,6 +307,8 @@ class StageRun(Base):
     output_version_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("suite_document_versions.id", ondelete="SET NULL")
     )
+    output_text: Mapped[Optional[str]] = mapped_column(Text)
+    cost_usd: Mapped[Optional[float]] = mapped_column(Float)
     error: Mapped[Optional[str]] = mapped_column(Text)
     started_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     finished_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
@@ -392,3 +402,18 @@ class MediaAsset(Base):
     duration_sec: Mapped[Optional[float]] = mapped_column(Float)
     meta: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Integration(Base):
+    """Per-user credentials and settings for an outside service (meta, superprofile, git)."""
+
+    __tablename__ = "suite_integrations"
+    __table_args__ = (UniqueConstraint("user_id", "provider"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    provider: Mapped[str] = mapped_column(String(32))
+    data: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, onupdate=utcnow
+    )

@@ -139,13 +139,21 @@ A usage-limit hit pauses work and resumes it automatically, losing at most the s
 
 ## 11. Build order
 
-1. Series package import through the reeld MCP, plus the context resolver. **(done: `suite/`)**
+All seven steps are built in `suite/` (see LOCAL_TESTING.md for what was verified where):
+
+1. Series package import through the reeld MCP, plus the context resolver.
 2. Script stage with the critic loop and Gate 1.
 3. Audio stage with alignment and Gate 2.
 4. Visual and edit stage.
 5. Automations runner (blog first).
 6. SuperProfile publishing.
 7. Meta insights pull and the analysis agent with proposals.
+
+Implementation notes that refine the spec:
+
+- Audio: the recording style is "pause between lines, repeat a line after a slip". Utterances are split on silences and matched to script lines with MMS forced alignment (`requirements-ml.txt`); the last matching take wins. Without the speech model the stage only removes silences.
+- Publishing falls back to a manual "Post" task (caption, DM text, video) when SuperProfile isn't enabled or the video has no public URL. Episodes with an "after Ep N" slot wait until Ep N is live.
+- Every LLM step stores its cost; the episode view shows it per step.
 
 ## 12. Open questions
 

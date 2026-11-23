@@ -2,7 +2,7 @@
 
 Automate your story reels. Upload voiceover → transcribe → assign visuals → export.
 
-> **The suite (in progress).** `suite/` is the new series → episode → publish pipeline described in [SPEC.md](SPEC.md). It shares this app's Postgres database and `users` table. Build step 1 (data model, context resolver, reeld MCP) is in; the stages come next. See [The suite](#the-suite) below.
+> **The suite.** `suite/` is the series → episode → publish pipeline described in [SPEC.md](SPEC.md): scripts with a critic loop, recording with automatic take selection, Claude-made visuals rendered with ffmpeg, automations, SuperProfile publishing, Instagram insights and self-improving skills, driven from a task-first UI at `/studio`. It shares this app's Postgres database and `users` table. Setup and testing: [LOCAL_TESTING.md](LOCAL_TESTING.md).
 
 ## The suite
 
@@ -26,7 +26,22 @@ python3 -m suite.cli context --series ballot-math --episode 3 --stage script
 python3 -m suite.cli context --series ballot-math --episode 3 --stage script --manifest
 ```
 
-Layout: `suite/models.py` (tables), `suite/documents.py` (versioned text), `suite/context.py` (resolver), `suite/package.py` (series package schema, validation, import/export), `suite/mcp_server.py`, `migrations/` (Alembic, manages `suite_*` tables only).
+Layout:
+
+| Module | Job |
+| --- | --- |
+| `suite/models.py`, `migrations/` | Tables (`suite_*`) and Alembic migrations |
+| `suite/documents.py` | Versioned text records |
+| `suite/context.py` | Per-stage context bundles (voice ← bible ← episode) |
+| `suite/package.py`, `suite/mcp_server.py` | Series packages and the reeld MCP |
+| `suite/runner.py` | `claude -p` runner, usage-limit detection |
+| `suite/pipeline.py` | Episode stages, checkpoints, pause/resume, gates |
+| `suite/audio.py`, `suite/video.py` | Take selection, cleanup, loudness; scene rendering |
+| `suite/schedule.py` | Tasks, due dates, Today/Tomorrow, calendar |
+| `suite/insights.py` | Meta stats, analysis, proposals, edit distillation |
+| `suite/integrations.py` | SuperProfile, git publishing, settings |
+| `suite/worker.py` | Celery worker and beat |
+| `suite/api.py`, `suite/app.py`, `static/suite.html` | API and UI |
 
 ## Setup
 
