@@ -13,6 +13,9 @@ pip install -r requirements.txt
 pip install -r requirements-ml.txt                 # optional: speech-model take selection (~1 GB)
 
 export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/reeld   # your existing reeld DB is fine
+# also put these in .env:
+#   REELD_AUTH_KEY=<a long random string>   studio sign-in key (openssl rand -hex 24)
+#   SESSION_SECRET=<another random string>  signs the login cookie
 alembic upgrade head                               # adds the suite_* tables; leaves your tables alone
 python3 -m suite.cli create-user --email you@example.com --name Ajwad
 ```
@@ -66,11 +69,14 @@ celery -A suite.worker worker --beat --concurrency 2 --loglevel info
 
 Then:
 
-1. Design a series in a Claude chat or Claude Code in this repo. `.mcp.json` gives Claude
-   Code the reeld tools; the `reeld-series-package` skill drives the conversation.
-2. In the UI, Series → **Start the pipeline**. The worker writes scripts for the next 3
+1. Studio → Settings → Claude & MCP: run the `claude mcp add` command shown there (once),
+   then check the reeld connection shows Connected.
+2. Tell Claude "interview me for my reeld voice profile" (or run the `/mcp__reeld__voice_interview`
+   prompt). It asks until your tone is clear and saves each section to Settings → Your voice.
+3. Design a series with Claude: the `reeld-series-package` skill drives the conversation and saves it.
+4. In the UI, Series → **Start the pipeline**. The worker writes scripts for the next 3
    episodes (`REELD_SCRIPTS_AHEAD`).
-3. Work through **Tasks**: approve scripts, record (teleprompter in the browser, or upload a
+5. Work through **Tasks**: approve scripts, record (teleprompter in the browser, or upload a
    file), check audio, watch the video. Approving the video runs the automations and publishes.
 
 One-off foreground run without Celery: `python3 -m suite.cli advance --episode 12` or

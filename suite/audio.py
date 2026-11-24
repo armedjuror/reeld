@@ -229,7 +229,12 @@ def process_take(raw: Path, script: str, out: Path, scorer: Optional[Scorer] = N
         choices = select_takes(lines, utterances, scorer, raw)
         kept = [sp for ch in choices for sp in ch.spans]
         if not kept:
-            raise ValueError("no utterance matched the script")
+            # Nothing matched (wrong language, noise, music): don't fail the
+            # episode; keep every utterance and let the creator check by ear.
+            res = process_take(raw, script, out, scorer=DurationScorer())
+            res["method"] = "silence-only"
+            res["note"] = "Forced alignment matched no line, so every take was kept."
+            return res
         duration = render_clean(raw, kept, out)
         timings = build_alignment(lines, choices)
         got = {c.line for c in choices}
@@ -325,8 +330,15 @@ class MMSScorer:
         return math.exp(mean_lp)
 
 
+_MMS: Optional[MMSScorer] = None
+
+
 def default_scorer() -> Scorer:
-    try:
-        return MMSScorer()
-    except Exception:
-        return DurationScorer()
+    """MMS when torch/torchaudio are installed (loaded once per process), else silence-only."""
+    global _MMS
+    if _MMS is None:
+        try:
+            _MMS = MMSScorer()
+        except Exception:
+            return DurationScorer()
+    return _MMS

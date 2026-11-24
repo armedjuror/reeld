@@ -32,7 +32,11 @@ from .package import (
 from .users import current_user_id
 
 INSTRUCTIONS = """\
-reeld stores reel series for its user. Workflow for a new series: call
+reeld stores reel series and the creator's voice profile. If the voice
+profile is missing or thin (check_voice_profile), interview the creator
+first: the reeld-voice-profile skill or the voice_interview prompt. Save
+one section at a time with update_voice_section.
+Workflow for a new series: call
 get_user_profile first and record only differences from it in the bible;
 draft the full package; call validate_series_package and fix every error;
 show the user a short summary; call create_series only after they approve.
@@ -81,6 +85,64 @@ def set_user_profile(content: str, note: str = "") -> dict[str, Any]:
             note=note or None,
         )
         return {"ok": True, "version": ref.version, "changed": changed}
+
+
+@server.tool()
+def get_voice_template() -> dict[str, Any]:
+    """The voice profile structure: each section, its purpose, and the questions
+    an interview must answer before the section is clear. Use it to plan the
+    voice interview; don't save the template itself."""
+    from .voice import SECTIONS, template
+
+    return {
+        "sections": [{"heading": s.heading, "purpose": s.purpose, "must_answer": list(s.must_answer)}
+                     for s in SECTIONS],
+        "skeleton": template(),
+    }
+
+
+@server.tool()
+def check_voice_profile() -> dict[str, Any]:
+    """How complete the saved voice profile is: each section is ok, thin or
+    missing, with the questions still open. Use it to decide what to ask next."""
+    from .voice import coverage
+
+    with session_scope() as s:
+        uid = current_user_id(s)
+        ref = documents.read(s, ScopeType.USER, uid, DocKind.VOICE)
+        return {"version": ref.version if ref else 0, **coverage(ref.content if ref else "")}
+
+
+@server.tool()
+def update_voice_section(heading: str, content: str) -> dict[str, Any]:
+    """Save one section of the voice profile (replaces that `## heading`
+    section, keeps the rest). Write in the creator's own words; include a
+    short example line where it helps. Only save what the creator confirmed."""
+    from .voice import coverage, update_section
+
+    if not heading.strip() or not content.strip():
+        return {"ok": False, "error": "heading and content are required"}
+    with session_scope() as s:
+        uid = current_user_id(s)
+        cur = documents.read(s, ScopeType.USER, uid, DocKind.VOICE)
+        new = update_section(cur.content if cur else "# Voice profile\n", heading, content)
+        ref, changed = documents.write(s, user_id=uid, scope_type=ScopeType.USER, scope_id=uid,
+                                       kind=DocKind.VOICE, content=new, source=VersionSource.MCP,
+                                       note=f"section: {heading.strip()}")
+        cov = coverage(new)
+        return {"ok": True, "version": ref.version, "changed": changed,
+                "progress": f"{cov['ok']}/{cov['total']} sections clear"}
+
+
+@server.prompt()
+def voice_interview() -> str:
+    """Interview me until the tone of my reels is clear, then save my voice profile to reeld."""
+    from pathlib import Path
+
+    skill = Path(__file__).resolve().parent.parent / ".claude" / "skills" / "reeld-voice-profile" / "SKILL.md"
+    body = skill.read_text(encoding="utf-8") if skill.exists() else ""
+    body = body.split("---", 2)[-1] if body.startswith("---") else body
+    return "Run this voice interview with me now, following these instructions exactly.\n\n" + body
 
 
 @server.tool()

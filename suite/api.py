@@ -52,17 +52,38 @@ def get_session():
 
 
 def get_user(request: Request, s: Session = Depends(get_session)) -> int:
-    """The signed-in user (legacy session) or the configured local user."""
-    try:
-        uid = request.session.get("user_id") if "session" in request.scope else None
-    except AssertionError:
-        uid = None
+    """The signed-in user, or the local user when sign-in isn't required."""
+    from .auth import login_required, session_user_id
+
+    uid = session_user_id(request)
     if uid:
-        return int(uid)
+        return uid
+    if login_required():
+        raise HTTPException(401, "Sign in to continue")
     try:
         return current_user_id(s)
     except UserNotConfigured as exc:
         raise HTTPException(503, str(exc)) from exc
+
+
+@router.get("/me")
+def me(request: Request, s: Session = Depends(get_session)) -> dict:
+    """Who is using the studio and whether sign-in is needed (never 401s)."""
+    from .auth import login_required, session_user_id
+    from .models import User
+
+    uid = session_user_id(request)
+    if uid is None and not login_required():
+        try:
+            uid = current_user_id(s)
+        except UserNotConfigured:
+            uid = None
+    user = s.get(User, uid) if uid else None
+    return {
+        "signed_in": user is not None,
+        "login_required": login_required(),
+        "user": {"id": user.id, "email": user.email, "name": user.name} if user else None,
+    }
 
 
 def _kick(episode_id: int) -> None:
@@ -494,3 +515,38 @@ def serve_media(asset_id: int, s: Session = Depends(get_session)):
     if not local.exists():
         raise HTTPException(404, "file missing")
     return FileResponse(local, media_type=a.mime or "application/octet-stream")
+
+
+# ─── Claude & MCP setup ───────────────────────────────────────────────────────
+
+
+@router.get("/claude-setup")
+def claude_setup(uid: int = Depends(get_user), s: Session = Depends(get_session)) -> dict:
+    from .claude_setup import mcp_commands, skills
+    from .models import User
+    from .voice import coverage
+
+    user = s.get(User, uid)
+    voice = documents.read(s, ScopeType.USER, uid, DocKind.VOICE)
+    return {"mcp": mcp_commands(user.email if user else None), "skills": skills(),
+            "voice": coverage(voice.content if voice else "")}
+
+
+@router.get("/claude-setup/status")
+def claude_setup_status(uid: int = Depends(get_user)) -> dict:
+    from .claude_setup import status
+
+    return status()
+
+
+@router.get("/skills/{name}.zip")
+def download_skill(name: str, uid: int = Depends(get_user)):
+    from fastapi.responses import Response
+
+    from .claude_setup import skill_zip
+
+    data = skill_zip(name)
+    if data is None:
+        raise HTTPException(404, "skill not found")
+    return Response(data, media_type="application/zip",
+                    headers={"Content-Disposition": f'attachment; filename="{name}.zip"'})

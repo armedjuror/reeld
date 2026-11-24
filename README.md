@@ -15,7 +15,11 @@ python3 -m suite.cli create-user --email you@example.com --name Ajwad
 python3 -m pytest tests -q                            # SQLite, no Postgres needed
 ```
 
-**reeld MCP.** `.mcp.json` registers the server for Claude Code sessions opened in this repo, so a session can read your voice profile and push a series package straight into the database. Elsewhere: `claude mcp add reeld -- python3 -m suite.mcp_server` (run from the repo, with `DATABASE_URL` set). Set `REELD_USER_EMAIL` if the database has more than one user. Tools: `get_user_profile`, `set_user_profile`, `validate_series_package`, `create_series`, `update_series`, `get_series`, `list_series`.
+**reeld MCP.** Studio → Settings → Claude & MCP shows the exact `claude mcp add` command (and the Claude Desktop config) for your machine, plus live connection status. Tools: `check_voice_profile`, `get_voice_template`, `update_voice_section`, `get_user_profile`, `set_user_profile`, `validate_series_package`, `create_series`, `update_series`, `get_series`, `list_series`; prompt: `voice_interview`.
+
+**Skills.** `.claude/skills/reeld-voice-profile` interviews you until your tone is clear and saves it section by section; `.claude/skills/reeld-series-package` designs a series. Claude Code loads them in this repo; Settings → Claude & MCP has the install command and zips for Claude Desktop.
+
+**Sign-in.** Set `REELD_AUTH_KEY` in `.env` and the studio asks for that key (once per browser, 30 days). Without it the studio is open, which is fine only on your own machine.
 
 **Designing a series.** The `reeld-series-package` skill (`.claude/skills/`) walks a Claude session through the interview, the package, validation and saving. Upload the same SKILL.md to claude.ai to use it in chats.
 

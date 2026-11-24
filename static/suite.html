@@ -37,6 +37,7 @@
   --ease: cubic-bezier(.2, .8, .2, 1);
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { background: var(--bg); color: var(--text); }
 body { margin: 0; font: 15px/1.55 var(--ui); -webkit-font-smoothing: antialiased; min-height: 100dvh; }
 a { color: inherit; text-decoration: none; }
@@ -319,6 +320,40 @@ canvas.wave { display: block; width: 100%; height: 120px; cursor: crosshair; }
 @keyframes view-in { from { opacity: 0; transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 
+/* ── Sign-in & account ─────────────────────────────────── */
+.gate { min-height: 100dvh; display: grid; place-items: center; padding: 24px; background: radial-gradient(80% 60% at 50% 0%, rgba(79,195,143,.10), transparent 60%), var(--bg); }
+.gate-card { width: min(400px, 100%); padding: 30px 26px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line-2); box-shadow: 0 30px 90px rgba(0,0,0,.5); animation: pop .25s var(--ease); }
+.gate-card .brand { padding: 0; margin-bottom: 26px; }
+.gate-card h1 { font-size: 30px; }
+.gate-card form { margin-top: 22px; display: grid; gap: 12px; }
+.gate-card .err { color: var(--coral); font-size: 13.5px; min-height: 20px; }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.shake { animation: shake .35s ease; }
+.me { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--r-sm); }
+.avatar { width: 30px; height: 30px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--raised); border: 1px solid var(--line-2); font: 700 13px/1 var(--display); color: var(--jade); }
+.me .who { min-width: 0; flex: 1; font-size: 13px; line-height: 1.3; }
+.me .who b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.me .who span { color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--text-3); display: grid; place-items: center; cursor: pointer; }
+.icon-btn:hover { background: var(--raised); color: var(--text); border-color: var(--line-2); }
+.code { position: relative; margin-top: 8px; border-radius: 10px; background: #070B09; border: 1px solid var(--line); }
+.code pre { margin: 0; padding: 12px 48px 12px 14px; font: 12.5px/1.6 var(--mono); color: #C9D6CF; white-space: pre-wrap; word-break: break-all; max-height: 260px; overflow: auto; }
+.code .icon-btn { position: absolute; top: 6px; right: 6px; }
+.conn { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--r); background: var(--raised); }
+.conn .grow { flex: 1; min-width: 0; }
+.conn b { display: block; font-size: 14px; }
+.conn span { font-size: 12.5px; color: var(--text-3); }
+.cover { display: flex; gap: 4px; margin-top: 12px; }
+.cover i { flex: 1; height: 6px; border-radius: 4px; background: var(--line); }
+.cover i.ok { background: var(--jade); }
+.cover i.thin { background: var(--amber); }
+.skill { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; align-items: start; padding: 14px 0; border-top: 1px solid var(--line); }
+.skill:first-of-type { border-top: 0; }
+.skill p { margin: 4px 0 0; font-size: 13.5px; color: var(--text-2); }
+.steps { counter-reset: st; list-style: none; padding: 0; margin: 12px 0 0; }
+.steps li { counter-increment: st; position: relative; padding: 0 0 14px 34px; }
+.steps li::before { content: counter(st); position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--raised); border: 1px solid var(--line-2); font: 600 12px/1 var(--display); color: var(--jade); }
+
 /* ── Responsive ────────────────────────────────────────── */
 @media (max-width: 1000px) {
   .grid-2 { grid-template-columns: 1fr; }
@@ -373,6 +408,8 @@ canvas.wave { display: block; width: 100%; height: 120px; cursor: crosshair; }
   <symbol id="i-film" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M8 3.5v17M16 3.5v17M3.5 8H8M3.5 16H8M16 8h4.5M16 16h4.5"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="12" height="12" rx="2"/><path d="M15.5 8.5V5.5a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3"/></symbol>
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M9 16l-4-4 4-4M5 12h11"/></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></symbol>
   <symbol id="i-logo" viewBox="0 0 24 24"><path d="M7 5v14M7 9h5.5a3.5 3.5 0 0 1 0 7H7M12.5 16l4.5 3"/></symbol>
 </svg>
 
@@ -388,6 +425,7 @@ canvas.wave { display: block; width: 100%; height: 120px; cursor: crosshair; }
     </nav>
     <div><h4>Your series</h4><div class="side-series" id="sideSeries"></div></div>
     <div class="status-card" id="statusCard"><strong><span class="pulse idle"></span>Checking pipeline…</strong></div>
+    <div class="me" id="meBox" hidden></div>
   </aside>
   <main id="app" tabindex="-1"></main>
 </div>
@@ -436,6 +474,7 @@ async function api(path, opts = {}) {
   const init = {...opts, headers: {...(!isForm && opts.body ? {"Content-Type": "application/json"} : {}), ...(opts.headers || {})}};
   if (init.body && !isForm && typeof init.body !== "string") init.body = JSON.stringify(init.body);
   const r = await fetch(API + path, init);
+  if (r.status === 401 && !path.startsWith("/auth/")) { showGate(); throw new Error("Sign in to continue"); }
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(typeof data.detail === "string" ? data.detail : `Request failed (${r.status})`);
   return data;
@@ -1014,8 +1053,10 @@ async function viewInsights(taskId) {
 // ─── Settings ─────────────────────────────────────────────────────────────────
 async function viewSettings(tab = "voice") {
   setNav("settings");
-  const [prof, integ, lib] = await Promise.all([api("/profile"), api("/integrations"), api("/library")]);
-  const tabs = [["voice", "Your voice"], ["music", "Music"], ["publishing", "Publishing"], ["stats", "Instagram stats"]];
+  const [prof, integ, lib, setup] = await Promise.all([api("/profile"), api("/integrations"), api("/library"), api("/claude-setup")]);
+  const copyBox = (text, id) => `<div class="code"><pre id="${id}">${esc(text)}</pre><button class="icon-btn" data-copy="${id}" title="Copy" aria-label="Copy">${icon("copy")}</button></div>`;
+  const wireCopy = () => document.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => navigator.clipboard.writeText(document.getElementById(b.dataset.copy).textContent).then(() => toast("Copied")));
+  const tabs = [["voice", "Your voice"], ["claude", "Claude & MCP"], ["music", "Music"], ["publishing", "Publishing"], ["stats", "Instagram stats"]];
   render(`<h1>Settings</h1>
     <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" data-tab="${k}" class="${k === tab ? "on" : ""}">${l}</button>`).join("")}</div>
     <div id="setBody" style="margin-top:20px"></div>`);
@@ -1023,13 +1064,56 @@ async function viewSettings(tab = "voice") {
   const show = k => {
     document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === k));
     if (k === "voice") {
-      body.innerHTML = `<p class="muted" style="margin-top:0">How you narrate, your tone, phrases to avoid, brand defaults. Use <code>## Section</code> headings; any series can override a section.</p>
+      const cov = setup.voice;
+      body.innerHTML = `<div class="card" style="margin-bottom:16px"><div class="spread"><div><h3>${cov.complete ? "Your voice is clear" : `${cov.ok} of ${cov.total} sections clear`}</h3>
+          <p class="muted small" style="margin:6px 0 0">${cov.complete ? "Every script, critic and visuals step uses this profile." : "Thin or missing sections make scripts generic. Let Claude interview you: it keeps asking until your tone is clear, tests sample lines with you, and saves each section here."}</p></div>
+          <span class="faint small">v${prof.version}</span></div>
+        <div class="cover">${cov.sections.map(x => `<i class="${x.status}" title="${esc(x.section)}: ${x.status}"></i>`).join("")}</div>
+        <details class="fold" style="margin-top:14px" ${cov.complete ? "" : "open"}><summary>Interview with Claude ${icon("down")}</summary>
+          <ol class="steps" style="margin-top:14px"><li>Connect reeld to Claude once (Claude &amp; MCP tab).</li>
+            <li>In Claude Code, run the prompt <code>/mcp__reeld__voice_interview</code>, or say “use the reeld-voice-profile skill”. In Claude Desktop, pick <b>voice_interview</b> from the reeld menu (the + button).</li>
+            <li>Answer its questions. Each section lands here as you confirm it.</li></ol>
+          <div class="row small faint">${cov.sections.filter(x => x.status !== "ok").map(x => `<span class="chip ${x.status === "thin" ? "amber" : ""}">${esc(x.section)}</span>`).join("")}</div></details></div>
+        <p class="muted" style="margin-top:0">Or edit it directly. Use <code>## Section</code> headings; any series can override a section in its bible.</p>
         <div class="editor"><textarea id="voice" spellcheck="false" style="min-height:340px">${esc(prof.content)}</textarea><span class="count">v${prof.version}</span></div>
         <div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn" id="saveVoice">${icon("check")}Save voice</button></div>`;
       document.getElementById("saveVoice").onclick = e => busy(e.currentTarget, "Saving", async () => {
         const r = await api("/profile", {method: "PUT", body: {content: document.getElementById("voice").value}});
         toast(r.changed ? `Saved as version ${r.version}` : "No changes"); viewSettings("voice");
       });
+    }
+    if (k === "claude") {
+      const m = setup.mcp;
+      body.innerHTML = `<div class="stack">
+        <div class="card"><div class="spread"><h3>Connections</h3><button class="btn ghost sm" id="recheck">${icon("refresh")}Check again</button></div>
+          <div class="stack" id="conns" style="margin-top:12px"><div class="sk" style="height:58px"></div><div class="sk" style="height:58px"></div><div class="sk" style="height:58px"></div></div></div>
+        <div class="card"><h3>Connect reeld to Claude Code</h3><p class="muted small" style="margin:6px 0 0">Run once in Terminal. It's set up for this machine: this repo, this Python and your database. Afterwards every Claude Code session can use the reeld tools.</p>
+          ${copyBox(m.claude_code, "cmdCode")}</div>
+        <div class="card"><h3>Connect reeld to Claude Desktop</h3><p class="muted small" style="margin:6px 0 0">Add this to <code>${esc(m.desktop_config_path)}</code> (merge into <code>mcpServers</code> if it exists), then restart Claude Desktop. Claude in the browser can't reach local tools; use Desktop or Claude Code.</p>
+          ${copyBox(JSON.stringify(m.desktop_json, null, 2), "cmdDesk")}</div>
+        <div class="card"><h3>Skills</h3><p class="muted small" style="margin:6px 0 0">Claude Code sessions opened in this repo load them automatically. To use them everywhere, install them for your user, or download a zip to upload in Claude Desktop (Settings → Capabilities → Skills).</p>
+          <div style="margin-top:8px">${setup.skills.map((sk, n) => `<div class="skill"><div><b>${esc(sk.name)}</b><p>${esc(sk.description)}</p>${copyBox(sk.install, "sk" + n)}</div>
+            <a class="btn ghost sm" href="${esc(sk.download)}" download>${icon("upload")}Zip</a></div>`).join("")}</div></div>
+        <div class="card"><h3>What to say to Claude</h3><ol class="steps"><li>“Interview me for my reeld voice profile.”</li><li>“Design a new reeld series about …” (uses the series package skill and saves it here).</li><li>“Show my reeld series” or “Change episode 4's hook in Ballot Math.”</li></ol></div>
+      </div>`;
+      wireCopy();
+      const conn = async () => {
+        const box = document.getElementById("conns");
+        box.innerHTML = `<div class="sk" style="height:58px"></div><div class="sk" style="height:58px"></div><div class="sk" style="height:58px"></div>`;
+        const st = await api("/claude-setup/status");
+        const row = (name, desc, x) => {
+          const [tone, label] = !x ? ["", "Unknown"] : x.connected ? ["jade", "Connected"] : x.pending ? ["amber", "Needs approval"]
+            : x.needs_auth ? ["amber", "Needs sign-in"] : x.registered ? ["coral", x.state || "Not connected"] : ["coral", "Not added"];
+          const hint = !x || x.connected ? "" : x.pending ? " · open Claude Code in this repo once and approve it" : x.needs_auth ? " · run /mcp in Claude Code to sign in" : !x.registered ? " · run the command below" : "";
+          return `<div class="conn">${icon("plug")}<span class="grow"><b>${name}</b><span>${desc}${x && x.scope ? ` · ${esc(x.scope.replace(/ \(.*\)/, ""))}` : ""}${hint}</span></span><span class="chip ${tone}"><span class="dot"></span>${esc(label)}</span></div>`;
+        };
+        box.innerHTML = !st.claude.installed
+          ? `<div class="banner coral" style="margin:0">${icon("alert")}<div>Claude Code isn't installed on this machine. Every pipeline step runs through it.</div></div>`
+          : `<div class="conn">${icon("check")}<span class="grow"><b>Claude Code</b><span>${esc(st.claude.version)}</span></span><span class="chip jade"><span class="dot"></span>Installed</span></div>`
+            + row("reeld", "Your series and voice tools", st.reeld) + row("SuperProfile", "Publishing and keyword DMs (optional)", st.superprofile);
+      };
+      document.getElementById("recheck").onclick = conn;
+      conn().catch(e => toast(e.message, "err"));
     }
     if (k === "music") {
       body.innerHTML = `<p class="muted" style="margin-top:0">Background music for reels, kept faint under your voice. A track tagged with a series is used for that series; otherwise the first track.</p>
@@ -1125,6 +1209,60 @@ document.addEventListener("keydown", e => {
 });
 document.getElementById("openPalette").onclick = openPalette;
 
+// ─── Sign-in ──────────────────────────────────────────────────────────────────
+let me = null;
+function showGate(message) {
+  clearInterval(pollTimer);
+  document.querySelector(".shell").hidden = true;
+  document.querySelector(".tabbar").hidden = true;
+  let gate = document.getElementById("gate");
+  if (!gate) { gate = document.createElement("div"); gate.id = "gate"; document.body.prepend(gate); }
+  gate.className = "gate";
+  gate.innerHTML = `<div class="gate-card">
+    <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-logo"/></svg></span>reeld</div>
+    <h1>Welcome back</h1><p class="sub">Enter your studio key to continue. It's the <code>REELD_AUTH_KEY</code> in your <code>.env</code>.</p>
+    <form id="gateForm"><label class="sr" for="gateKey">Studio key</label>
+      <input class="field" id="gateKey" type="password" autocomplete="current-password" placeholder="Studio key" required autofocus>
+      <button class="btn lg" type="submit">Sign in</button><span class="err" id="gateErr">${esc(message || "")}</span></form></div>`;
+  const form = document.getElementById("gateForm");
+  document.getElementById("gateKey").focus();
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const btn = form.querySelector("button");
+    btn.disabled = true; btn.innerHTML = `<span class="spin"></span>Checking`;
+    try {
+      const r = await fetch(API + "/auth/login", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({key: document.getElementById("gateKey").value})});
+      if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.detail || "Sign-in failed"); }
+      gate.remove(); boot();
+    } catch (err) {
+      document.getElementById("gateErr").textContent = err.message;
+      const keyEl = document.getElementById("gateKey");
+      keyEl.classList.remove("shake"); void keyEl.offsetWidth; keyEl.classList.add("shake"); keyEl.select();
+      btn.disabled = false; btn.textContent = "Sign in";
+    }
+  };
+}
+function renderMe() {
+  const box = document.getElementById("meBox");
+  if (!me || !me.user) { box.hidden = true; return; }
+  const u = me.user, initial = (u.name || u.email || "?").trim()[0].toUpperCase();
+  box.hidden = false;
+  box.innerHTML = `<span class="avatar">${esc(initial)}</span><span class="who"><b>${esc(u.name || "You")}</b><span>${esc(u.email || "")}</span></span>
+    ${me.login_required ? `<button class="icon-btn" id="signOut" title="Sign out" aria-label="Sign out">${icon("logout")}</button>` : ""}`;
+  const so = document.getElementById("signOut");
+  if (so) so.onclick = async () => { await fetch(API + "/auth/logout", {method: "POST"}); me = null; showGate("Signed out."); };
+}
+async function boot() {
+  me = await fetch(API + "/me").then(r => r.json()).catch(() => null);
+  if (me && me.login_required && !me.signed_in) { showGate(); return; }
+  document.querySelector(".shell").hidden = false;
+  document.querySelector(".tabbar").hidden = false;
+  renderMe();
+  fetch(API + "/open", {method: "POST"}).catch(() => {});
+  refreshChrome();
+  route();
+}
+
 // ─── Router ───────────────────────────────────────────────────────────────────
 const routes = [
   [/^#?\/?$/, viewHome], [/^#\/script\/(\d+)$/, viewScript], [/^#\/record\/(\w+)$/, viewRecord],
@@ -1147,10 +1285,8 @@ async function route() {
   }
   location.hash = "#/";
 }
-window.addEventListener("hashchange", route);
-fetch(API + "/open", {method: "POST"}).catch(() => {});
-refreshChrome();
-route();
+window.addEventListener("hashchange", () => { if (!document.getElementById("gate")) route(); });
+boot();
 </script>
 </body>
 </html>

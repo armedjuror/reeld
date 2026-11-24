@@ -17,6 +17,7 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 
 from . import documents, pipeline, schedule
+from .audio import DurationScorer
 from .insights import _make_proposal
 from .models import (
     DocKind,
@@ -126,26 +127,26 @@ def seed(session: Session) -> dict:
         _tone(take)
         # Ep 4: all the way to live, with stats
         e4 = eps[4]
-        pipeline.advance(session, e4, runner)
+        pipeline.advance(session, e4, runner, scorer=DurationScorer())
         pipeline.approve_script(session, e4)
         pipeline.attach_recording(session, e4, take)
-        pipeline.advance(session, e4, runner)
+        pipeline.advance(session, e4, runner, scorer=DurationScorer())
         pipeline.approve_audio(session, e4)
-        pipeline.advance(session, e4, runner)
+        pipeline.advance(session, e4, runner, scorer=DurationScorer())
         pipeline.approve_video(session, e4)
-        pipeline.advance(session, e4, runner)
+        pipeline.advance(session, e4, runner, scorer=DurationScorer())
         pipeline.mark_published(session, e4, {"manual": True})
         session.add(InsightSnapshot(episode_id=e4.id, external_id="demo", metrics={
             "views": 18420, "reach": 15110, "likes": 912, "comments": 340, "shares": 128, "saved": 205,
             "ig_reels_avg_watch_time": 21400}))
         # Ep 1: waiting for video approval
         e1 = eps[1]
-        pipeline.advance(session, e1, runner)
+        pipeline.advance(session, e1, runner, scorer=DurationScorer())
         pipeline.approve_script(session, e1)
         pipeline.attach_recording(session, e1, take)
-        pipeline.advance(session, e1, runner)
+        pipeline.advance(session, e1, runner, scorer=DurationScorer())
         pipeline.approve_audio(session, e1)
-        pipeline.advance(session, e1, runner)
+        pipeline.advance(session, e1, runner, scorer=DurationScorer())
         # Ep 2: script ready; Ep 3: waiting for recording
         pipeline.advance(session, eps[2], runner)
         pipeline.advance(session, eps[3], runner)

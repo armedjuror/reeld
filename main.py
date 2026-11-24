@@ -27,8 +27,10 @@ app.add_middleware(
 
 # ─── Suite (series → episode pipeline, see SPEC.md) ──────────────────────────
 from suite.api import router as suite_router  # noqa: E402
+from suite.auth import router as suite_auth_router  # noqa: E402
 
 app.include_router(suite_router)
+app.include_router(suite_auth_router)
 
 
 @app.get("/studio")

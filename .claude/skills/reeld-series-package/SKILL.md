@@ -13,7 +13,8 @@ Produce one complete series package that reeld can run without further chat: eve
 
 | Tool | Use |
 | --- | --- |
-| `get_user_profile` | Read the voice profile. Always first. |
+| `check_voice_profile` | Is the voice profile complete? Always first. |
+| `get_user_profile` | Read the voice profile. |
 | `set_user_profile` | Only when he asks to change his profile. |
 | `list_series` / `get_series` | Find an existing series and its current package. |
 | `validate_series_package` | Check a draft. Fix every `error`; weigh each `warning`. |
@@ -24,8 +25,9 @@ If the reeld tools are not available, say so and stop; do not save the package a
 
 ## Before starting
 
-1. Call `get_user_profile`. The bible records only sections that differ from it; never copy profile content into the bible.
-2. If the series may already exist, call `list_series` and `get_series`, and work as an edit of the returned package.
+1. Call `check_voice_profile`. If sections are missing or thin, suggest running the voice interview first (the `reeld-voice-profile` skill): a series built on a thin profile gets generic scripts. Go on only if he says so.
+2. Call `get_user_profile`. The bible records only sections that differ from it, under the same `## Section` headings (e.g. a different `## Tone` for this series); never copy profile content into the bible.
+3. If the series may already exist, call `list_series` and `get_series`, and work as an edit of the returned package.
 
 ## Step 1: Interview (one question at a time, write nothing yet)
 
