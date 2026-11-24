@@ -1056,7 +1056,7 @@ async function viewSettings(tab = "voice") {
   const [prof, integ, lib, setup] = await Promise.all([api("/profile"), api("/integrations"), api("/library"), api("/claude-setup")]);
   const copyBox = (text, id) => `<div class="code"><pre id="${id}">${esc(text)}</pre><button class="icon-btn" data-copy="${id}" title="Copy" aria-label="Copy">${icon("copy")}</button></div>`;
   const wireCopy = () => document.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => navigator.clipboard.writeText(document.getElementById(b.dataset.copy).textContent).then(() => toast("Copied")));
-  const tabs = [["voice", "Your voice"], ["claude", "Claude & MCP"], ["music", "Music"], ["publishing", "Publishing"], ["stats", "Instagram stats"]];
+  const tabs = [["voice", "Your voice"], ["claude", "Claude & MCP"], ["music", "Music"], ["publishing", "Publishing"], ["stats", "Instagram stats"], ["account", "Account"]];
   render(`<h1>Settings</h1>
     <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" data-tab="${k}" class="${k === tab ? "on" : ""}">${l}</button>`).join("")}</div>
     <div id="setBody" style="margin-top:20px"></div>`);
@@ -1081,6 +1081,19 @@ async function viewSettings(tab = "voice") {
         const r = await api("/profile", {method: "PUT", body: {content: document.getElementById("voice").value}});
         toast(r.changed ? `Saved as version ${r.version}` : "No changes"); viewSettings("voice");
       });
+    }
+    if (k === "account") {
+      const u = (me && me.user) || {};
+      body.innerHTML = `<div class="stack">
+        <div class="card"><div class="row" style="gap:14px"><span class="avatar" style="width:44px;height:44px;font-size:17px">${esc((u.name || u.email || "?").trim()[0].toUpperCase())}</span>
+          <span><b style="display:block;font-size:16px">${esc(u.name || "You")}</b><span class="faint small">${esc(u.email || "")}</span></span></div></div>
+        ${me && me.login_required
+          ? `<div class="card spread"><div><h3>Sign out</h3><p class="muted small" style="margin:6px 0 0">You'll need the studio key to come back in. Sign-ins last 30 days per browser.</p></div>
+              <button class="btn danger" id="signOutBtn">${icon("logout")}Sign out</button></div>`
+          : `<div class="banner" style="margin-top:0">${icon("alert")}<div><b>Sign-in is off, so there's nothing to sign out of.</b> Anyone who can reach this app can use it. To require a key, add <code>REELD_AUTH_KEY=&lt;a long random string&gt;</code> and <code>SESSION_SECRET=&lt;another one&gt;</code> to <code>.env</code> (e.g. <code>openssl rand -hex 24</code>), then restart the app.</div></div>`}
+      </div>`;
+      const b = document.getElementById("signOutBtn");
+      if (b) b.onclick = signOut;
     }
     if (k === "claude") {
       const m = setup.mcp;
@@ -1145,8 +1158,8 @@ async function viewSettings(tab = "voice") {
         busy(e.currentTarget, "Saving", async () => { await api("/integrations/meta", {method: "PUT", body: {data: {access_token: t}}}); toast("Token saved"); viewSettings("stats"); }); };
     }
   };
-  document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => show(b.dataset.tab));
-  show(tab);
+  document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => { history.replaceState(null, "", `#/settings/${b.dataset.tab}`); show(b.dataset.tab); });
+  show(tabs.some(([k]) => k === tab) ? tab : "voice");
 }
 
 // ─── Command palette & keyboard ───────────────────────────────────────────────
@@ -1156,6 +1169,7 @@ async function openPalette() {
   const items = [
     {label: "Tasks", hint: "Go to", href: "#/", ic: "tasks"}, {label: "Calendar", hint: "Go to", href: "#/calendar", ic: "cal"},
     {label: "Series", hint: "Go to", href: "#/series", ic: "series"}, {label: "Settings", hint: "Go to", href: "#/settings", ic: "gear"},
+    {label: "Sign out", hint: "Account", href: "#/settings/account", ic: "logout"},
     ...series.flatMap(s => s.episodes.map(e => ({label: `${e.title}`, hint: `${s.name} · Ep ${e.number} · ${(STATE[e.state] || [e.state])[0]}`, href: `#/episode/${e.id}`, ic: "film"}))),
   ];
   const wrap = document.createElement("div");
@@ -1242,15 +1256,21 @@ function showGate(message) {
     }
   };
 }
+async function signOut() {
+  await fetch(API + "/auth/logout", {method: "POST"}).catch(() => {});
+  me = null;
+  showGate("Signed out.");
+}
 function renderMe() {
   const box = document.getElementById("meBox");
   if (!me || !me.user) { box.hidden = true; return; }
   const u = me.user, initial = (u.name || u.email || "?").trim()[0].toUpperCase();
   box.hidden = false;
   box.innerHTML = `<span class="avatar">${esc(initial)}</span><span class="who"><b>${esc(u.name || "You")}</b><span>${esc(u.email || "")}</span></span>
-    ${me.login_required ? `<button class="icon-btn" id="signOut" title="Sign out" aria-label="Sign out">${icon("logout")}</button>` : ""}`;
+    ${me.login_required ? `<button class="icon-btn" id="signOut" title="Sign out" aria-label="Sign out">${icon("logout")}</button>`
+      : `<a class="icon-btn" href="#/settings/account" title="Sign-in is off. Set REELD_AUTH_KEY to require a key." aria-label="Sign-in is off">${icon("alert")}</a>`}`;
   const so = document.getElementById("signOut");
-  if (so) so.onclick = async () => { await fetch(API + "/auth/logout", {method: "POST"}); me = null; showGate("Signed out."); };
+  if (so) so.onclick = signOut;
 }
 async function boot() {
   me = await fetch(API + "/me").then(r => r.json()).catch(() => null);
@@ -1268,7 +1288,7 @@ const routes = [
   [/^#?\/?$/, viewHome], [/^#\/script\/(\d+)$/, viewScript], [/^#\/record\/(\w+)$/, viewRecord],
   [/^#\/audio\/(\d+)$/, viewAudio], [/^#\/video\/(\d+)$/, viewVideo], [/^#\/publish\/(\d+)$/, viewPublish],
   [/^#\/episode\/(\d+)$/, viewEpisode], [/^#\/calendar$/, viewCalendar], [/^#\/series$/, viewSeries],
-  [/^#\/proposal\/(\d+)$/, viewProposal], [/^#\/insights\/(\d+)$/, viewInsights], [/^#\/settings$/, viewSettings],
+  [/^#\/proposal\/(\d+)$/, viewProposal], [/^#\/insights\/(\d+)$/, viewInsights], [/^#\/settings(?:\/(\w+))?$/, (tab) => viewSettings(tab || "voice")],
 ];
 async function route() {
   clearInterval(pollTimer);
