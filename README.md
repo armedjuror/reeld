@@ -2,6 +2,51 @@
 
 Automate your story reels. Upload voiceover → transcribe → assign visuals → export.
 
+> **The suite.** `suite/` is the series → episode → publish pipeline described in [SPEC.md](SPEC.md): scripts with a critic loop, recording with automatic take selection, Claude-made visuals rendered with ffmpeg, automations, SuperProfile publishing, Instagram insights and self-improving skills, driven from a task-first UI at `/studio`. It shares this app's Postgres database and `users` table. Setup and testing: [LOCAL_TESTING.md](LOCAL_TESTING.md).
+
+## The suite
+
+```bash
+pip install -r requirements.txt
+export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/reeld   # same as the editor
+
+alembic upgrade head                                  # creates the suite_* tables
+python3 -m suite.cli create-user --email you@example.com --name Ajwad
+python3 -m pytest tests -q                            # SQLite, no Postgres needed
+```
+
+**reeld MCP.** Studio → Settings → Claude & MCP shows the exact `claude mcp add` command (and the Claude Desktop config) for your machine, plus live connection status. Tools: `check_voice_profile`, `get_voice_template`, `update_voice_section`, `get_user_profile`, `set_user_profile`, `validate_series_package`, `create_series`, `update_series`, `get_series`, `list_series`; prompt: `voice_interview`.
+
+**Skills.** `.claude/skills/reeld-voice-profile` interviews you until your tone is clear and saves it section by section; `.claude/skills/reeld-series-package` designs a series. Claude Code loads them in this repo; Settings → Claude & MCP has the install command and zips for Claude Desktop.
+
+**Sign-in.** Set `REELD_AUTH_KEY` in `.env` and the studio asks for that key (once per browser, 30 days). Without it the studio is open, which is fine only on your own machine.
+
+**Designing a series.** The `reeld-series-package` skill (`.claude/skills/`) walks a Claude session through the interview, the package, validation and saving. Upload the same SKILL.md to claude.ai to use it in chats.
+
+**Inspecting context.** See exactly what a stage would send to Claude:
+
+```bash
+python3 -m suite.cli context --series ballot-math --episode 3 --stage script
+python3 -m suite.cli context --series ballot-math --episode 3 --stage script --manifest
+```
+
+Layout:
+
+| Module | Job |
+| --- | --- |
+| `suite/models.py`, `migrations/` | Tables (`suite_*`) and Alembic migrations |
+| `suite/documents.py` | Versioned text records |
+| `suite/context.py` | Per-stage context bundles (voice ← bible ← episode) |
+| `suite/package.py`, `suite/mcp_server.py` | Series packages and the reeld MCP |
+| `suite/runner.py` | `claude -p` runner, usage-limit detection |
+| `suite/pipeline.py` | Episode stages, checkpoints, pause/resume, gates |
+| `suite/audio.py`, `suite/video.py` | Take selection, cleanup, loudness; scene rendering |
+| `suite/schedule.py` | Tasks, due dates, Today/Tomorrow, calendar |
+| `suite/insights.py` | Meta stats, analysis, proposals, edit distillation |
+| `suite/integrations.py` | SuperProfile, git publishing, settings |
+| `suite/worker.py` | Celery worker and beat |
+| `suite/api.py`, `suite/app.py`, `static/suite.html` | API and UI |
+
 ## Setup
 
 ```bash
