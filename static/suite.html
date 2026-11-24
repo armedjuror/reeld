@@ -1234,9 +1234,9 @@ function showGate(message) {
   gate.className = "gate";
   gate.innerHTML = `<div class="gate-card">
     <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-logo"/></svg></span>reeld</div>
-    <h1>Welcome back</h1><p class="sub">Enter your studio key to continue. It's the <code>REELD_AUTH_KEY</code> in your <code>.env</code>.</p>
+    <h1>Welcome back</h1><p class="sub">Enter your key.</p>
     <form id="gateForm"><label class="sr" for="gateKey">Studio key</label>
-      <input class="field" id="gateKey" type="password" autocomplete="current-password" placeholder="Studio key" required autofocus>
+      <input class="field" id="gateKey" type="password" autocomplete="current-password" placeholder="Key" required autofocus>
       <button class="btn lg" type="submit">Sign in</button><span class="err" id="gateErr">${esc(message || "")}</span></form></div>`;
   const form = document.getElementById("gateForm");
   document.getElementById("gateKey").focus();

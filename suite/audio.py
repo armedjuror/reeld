@@ -226,7 +226,12 @@ def process_take(raw: Path, script: str, out: Path, scorer: Optional[Scorer] = N
         timings = proportional_timings(lines, [duration * len(l) / total_chars for l in lines]) if lines else []
         missing: list[int] = []
     else:
-        choices = select_takes(lines, utterances, scorer, raw)
+        try:
+            choices = select_takes(lines, utterances, scorer, raw)
+        except Exception as exc:  # noqa: BLE001 - a broken model must not stall the episode
+            res = process_take(raw, script, out, scorer=DurationScorer())
+            res["note"] = f"Speech model error ({type(exc).__name__}: {str(exc)[:160]}), so every take was kept."
+            return res
         kept = [sp for ch in choices for sp in ch.spans]
         if not kept:
             # Nothing matched (wrong language, noise, music): don't fail the
@@ -298,13 +303,23 @@ class MMSScorer:
         return re.sub(r"[^a-z' ]", " ", text)
 
     def _wave(self, audio: Path):
+        """Mono float32 at the model's rate, decoded with ffmpeg.
+
+        torchaudio>=2.9 routes `torchaudio.load` through the optional
+        torchcodec package; ffmpeg is already required, so decode with it.
+        """
         key = str(audio)
         if key not in self._cache:
-            wav, sr = self.torchaudio.load(key)
-            wav = wav.mean(0, keepdim=True)
-            if sr != self.bundle.sample_rate:
-                wav = self.torchaudio.functional.resample(wav, sr, self.bundle.sample_rate)
-            self._cache = {key: (wav, self.bundle.sample_rate)}
+            import numpy as np
+
+            sr = self.bundle.sample_rate
+            proc = subprocess.run(
+                ["ffmpeg", "-hide_banner", "-loglevel", "error", "-i", key, "-f", "f32le", "-acodec", "pcm_f32le",
+                 "-ac", "1", "-ar", str(sr), "-"],
+                capture_output=True, check=True,
+            )
+            samples = np.frombuffer(proc.stdout, dtype=np.float32).copy()
+            self._cache = {key: (self.torch.from_numpy(samples).unsqueeze(0), sr)}
         return self._cache[key]
 
     def score(self, audio: Path, span: Span, text: str) -> float:

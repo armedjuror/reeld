@@ -143,3 +143,37 @@ def test_demo_seeds_even_with_a_speech_model(db, monkeypatch):
     with db.session_scope() as s:
         out = seed(s)
     assert out["episodes"][1] == "video_review" and out["episodes"][4] == "live"
+
+
+class _Broken:
+    def score(self, audio_path, span, text):
+        raise ImportError("TorchCodec is required for load_with_torchcodec")
+
+
+@pytest.mark.ffmpeg
+def test_model_error_falls_back_instead_of_stalling(take, tmp_path):
+    # torchaudio>=2.9 without torchcodec raised here and left episodes stuck in audio_processing
+    res = audio.process_take(take, "Line one\nLine two", tmp_path / "out.m4a", scorer=_Broken())
+    assert res["method"] == "silence-only" and "Speech model error (ImportError" in res["note"]
+
+
+@pytest.mark.ffmpeg
+def test_mms_decodes_with_ffmpeg_not_torchaudio(take):
+    np = pytest.importorskip("numpy")
+    from types import SimpleNamespace
+
+    class T:  # minimal stand-in for a torch tensor
+        def __init__(self, a):
+            self.a = a
+
+        def unsqueeze(self, dim):
+            return T(np.expand_dims(self.a, dim))
+
+    scorer = audio.MMSScorer.__new__(audio.MMSScorer)
+    scorer.torch = SimpleNamespace(from_numpy=T)
+    scorer.bundle = SimpleNamespace(sample_rate=16000)
+    scorer._cache = {}
+    wav, sr = scorer._wave(take)
+    assert sr == 16000 and wav.a.shape[0] == 1
+    assert abs(wav.a.shape[1] / 16000 - 6.0) < 0.05  # the 6 s fixture, resampled to 16 kHz mono
+    assert wav.a.dtype == np.float32 and 0.3 < float(abs(wav.a).max()) < 0.5
